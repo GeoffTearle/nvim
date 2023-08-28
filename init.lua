@@ -317,22 +317,18 @@ local servers = {
       },
     },
   },
-  lua_ls = {
+}
+
+local os = vim.trim(vim.fn.system("uname -s"))
+local arch = vim.trim(vim.fn.system("uname -m"))
+
+if os == "Linux" and arch ~= "aarch6" then
+  servers.lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
     },
-  },
-}
-
-
-
-
-local os = vim.fn.system("uname -s")
-local arch = vim.fn.system("uname -m")
-
-if os == "Linux" and arch == "arm" then
-  servers.lua_ls = nil
+  }
 end
 
 -- Setup neovim lua configuration
@@ -361,7 +357,7 @@ mason_lspconfig.setup_handlers {
 }
 
 if os == "Linux" and arch == "aarch64" then
-  require("lspconfig")["lua_ls"].setup {
+  require("lspconfig").lua_ls.setup {
     capabilities = capabilities,
     on_attach = on_attach,
     settings = {
