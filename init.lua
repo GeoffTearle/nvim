@@ -329,7 +329,7 @@ local servers = {
 
 
 local os = vim.fn.system("uname -s")
-local arch = vim.fn.system("uname -a")
+local arch = vim.fn.system("uname -m")
 
 if os == "Linux" and arch == "arm" then
   servers.lua_ls = nil
@@ -360,7 +360,7 @@ mason_lspconfig.setup_handlers {
   end
 }
 
-if os == "Linux" and arch == "arm" then
+if os == "Linux" and arch == "aarch64" then
   require("lspconfig")["lua_ls"].setup {
     capabilities = capabilities,
     on_attach = on_attach,
