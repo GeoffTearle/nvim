@@ -317,7 +317,6 @@ local servers = {
       },
     },
   },
-
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
@@ -325,6 +324,16 @@ local servers = {
     },
   },
 }
+
+
+
+
+local os = vim.fn.system("uname -s")
+local arch = vim.fn.system("uname -a")
+
+if os == "Linux" and arch == "arm" then
+  servers.lua_ls = nil
+end
 
 -- Setup neovim lua configuration
 require('neodev').setup()
@@ -350,6 +359,20 @@ mason_lspconfig.setup_handlers {
     }
   end
 }
+
+if os == "Linux" and arch == "arm" then
+  require("lspconfig")["lua_ls"].setup {
+    capabilities = capabilities,
+    on_attach = on_attach,
+    settings = {
+      Lua = {
+        workspace = { checkThirdParty = false },
+        telemetry = { enable = false },
+      }
+    },
+  }
+end
+
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
