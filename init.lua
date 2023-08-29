@@ -83,24 +83,39 @@ vim.o.splitbelow = true -- Split windows below to the current windows
 vim.o.autowrite = true  -- Automatically save before :next, :make etc.
 
 -- [[ Basic Keymaps ]]
+local keymap = vim.api.nvim_set_keymap
+local default_opts = { noremap = true, silent = true }
+local expr_opts = { noremap = true, expr = true, silent = true }
 
-vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { noremap = true, silent = true })
+keymap({ 'n', 'v' }, '<Space>', '<Nop>', default_opts)
+
+-- Center search results
+keymap("n", "n", "nzz", default_opts)
+keymap("n", "N", "Nzz", default_opts)
+
+-- Better indent
+keymap("v", "<", "<gv", default_opts)
+keymap("v", ">", ">gv", default_opts)
 
 -- Remap for dealing with word wrap
-vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { noremap = true, expr = true, silent = true })
-vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { noremap = true, expr = true, silent = true })
+keymap('n', 'k', "v:count == 0 ? 'gk' : 'k'", expr_opts)
+keymap('n', 'j', "v:count == 0 ? 'gj' : 'j'", expr_opts)
 
 -- Normal mode
-vim.keymap.set('n', '<Leader>;', 'A;', { noremap = true, silent = true })
+keymap('n', '<Leader>;', 'A;', default_opts)
 
 -- Better split switching
-vim.keymap.set('', '<C-j>', '<C-W>j', { noremap = true, silent = true })
-vim.keymap.set('', '<C-k>', '<C-W>k', { noremap = true, silent = true })
-vim.keymap.set('', '<C-h>', '<C-W>h', { noremap = true, silent = true })
-vim.keymap.set('', '<C-l>', '<C-W>l', { noremap = true, silent = true })
+keymap('', '<C-j>', '<C-W>j', default_opts)
+keymap('', '<C-k>', '<C-W>k', default_opts)
+keymap('', '<C-h>', '<C-W>h', default_opts)
+keymap('', '<C-l>', '<C-W>l', default_opts)
+
+-- Switch buffer
+keymap("n", "<S-h>", ":bprevious<CR>", default_opts)
+keymap("n", "<S-l>", ":bnext<CR>", default_opts)
 
 -- Yanking a line should act like D and C
-vim.keymap.set('n', 'Y', 'y$', { noremap = true, silent = true })
+keymap('n', 'Y', 'y$', { noremap = true, silent = true })
 --
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
