@@ -319,10 +319,16 @@ local servers = {
   },
 }
 
-local os = vim.trim(vim.fn.system("uname -s"))
-local arch = vim.trim(vim.fn.system("uname -m"))
+local is_pinephone = function()
+  local os = vim.trim(vim.fn.system("uname -s"))
+  local arch = vim.trim(vim.fn.system("uname -m"))
+  if os == "Linux" and arch == "aarch64" then
+    return true
+  end
+  return false
+end
 
-if os == "Linux" and arch ~= "aarch6" then
+if not is_pinephone() then
   servers.lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
@@ -330,6 +336,7 @@ if os == "Linux" and arch ~= "aarch6" then
     },
   }
 end
+
 
 -- Setup neovim lua configuration
 require('neodev').setup()
@@ -347,6 +354,10 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup_handlers {
   function(server_name)
+    if server_name == "lua_ls" and is_pinephone() then
+      return
+    end
+
     require('lspconfig')[server_name].setup {
       capabilities = capabilities,
       on_attach = on_attach,
@@ -356,7 +367,7 @@ mason_lspconfig.setup_handlers {
   end
 }
 
-if os == "Linux" and arch == "aarch64" then
+if is_pinephone() then
   require("lspconfig").lua_ls.setup {
     capabilities = capabilities,
     on_attach = on_attach,
@@ -368,7 +379,6 @@ if os == "Linux" and arch == "aarch64" then
     },
   }
 end
-
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
@@ -386,22 +396,24 @@ cmp.setup {
   mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
+
+    ['<A-j>'] = cmp.mapping.select_next_item(),
+    ['<A-k>'] = cmp.mapping.select_prev_item(),
+
     ['<C-d>'] = cmp.mapping.scroll_docs(-4),
     ['<C-f>'] = cmp.mapping.scroll_docs(4),
+
     ['<C-Space>'] = cmp.mapping.complete {},
+
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    ['<Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then
-        luasnip.expand_or_jump()
-      else
-        fallback()
-      end
-    end, { 'i', 's' }),
+    ['<Tab>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Insert,
+      select = true,
+    },
+
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
