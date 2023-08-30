@@ -46,6 +46,8 @@ vim.o.hlsearch = false
 vim.o.number = true
 vim.o.relativenumber = true
 
+vim.o.scrolloff = 7
+
 -- Enable mouse mode
 vim.o.mouse = 'a'
 
@@ -83,7 +85,7 @@ vim.o.splitbelow = true -- Split windows below to the current windows
 vim.o.autowrite = true  -- Automatically save before :next, :make etc.
 
 -- [[ Basic Keymaps ]]
-local keymap = vim.api.nvim_set_keymap
+local keymap = vim.keymap.set
 local default_opts = { noremap = true, silent = true }
 local expr_opts = { noremap = true, expr = true, silent = true }
 
@@ -253,6 +255,7 @@ local on_attach = function(_, bufnr)
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  nmap('<A-CR>', vim.lsp.buf.code_action, 'Code Action')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -424,11 +427,20 @@ cmp.setup {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    ['<Tab>'] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Insert,
-      select = true,
-    },
-
+    ["<Tab>"] = cmp.mapping(function(fallback)
+      -- This little snippet will confirm with tab, and if no entry is selected, will confirm the first item
+      if cmp.visible() then
+        local entry = cmp.get_selected_entry()
+        if not entry then
+          cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+          cmp.confirm()
+        else
+          cmp.confirm()
+        end
+      else
+        fallback()
+      end
+    end, { "i", "s", "c", }),
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
