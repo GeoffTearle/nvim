@@ -117,7 +117,11 @@ keymap("n", "<S-h>", ":bprevious<CR>", default_opts)
 keymap("n", "<S-l>", ":bnext<CR>", default_opts)
 
 -- Yanking a line should act like D and C
-keymap('n', 'Y', 'y$', { noremap = true, silent = true })
+keymap('n', 'Y', 'y$', default_opts)
+
+keymap('n', '<C-Space>', '<Nop>', default_opts)
+keymap('n', '<C-Leader>', '<Nop>', default_opts)
+
 --
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -178,10 +182,10 @@ require('nvim-treesitter.configs').setup {
   incremental_selection = {
     enable = true,
     keymaps = {
-      init_selection = '<c-space>',
-      node_incremental = '<c-space>',
-      scope_incremental = '<c-s>',
-      node_decremental = '<M-space>',
+      -- init_selection = '<c-space>',
+      -- node_incremental = '<c-space>',
+      -- scope_incremental = '<c-s>',
+      -- node_decremental = '<M-space>',
     },
   },
   textobjects = {
