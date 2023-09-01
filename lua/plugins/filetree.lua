@@ -22,6 +22,8 @@ return {
     vim.keymap.set('n', '\\', ':Neotree reveal<CR>')
 
     require("neo-tree").setup({
+      enable_git_status = true,
+      enable_diagnostics = true,
       window = {
         position = "float",
         popup = {
@@ -41,10 +43,13 @@ return {
       },
       filesystem = {
         filtered_items = {
-          visible = true,
+          visible = false,
           hide_dotfiles = false,
           hide_gitignored = true,
           hide_hidden = true,
+          never_show = {
+            '.git',
+          },
         },
         follow_current_file = {
           enabled = true,
