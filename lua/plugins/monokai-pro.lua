@@ -23,14 +23,34 @@
 --   end,
 -- }
 
+-- return {
+--   'tanvirtin/monokai.nvim',
+--   priority = 1000,
+--   config = function()
+--     local monokai = require('monokai')
+--     local palette = monokai.classic
+--     monokai.setup {
+--       palette = palette
+--     }
+--     vim.cmd.colorscheme 'monokai'
+--   end,
+-- }
+
+-- return {
+--   'ray-x/starry.nvim',
+--   priority = 1000,
+--   config = function()
+--     local starry = require 'starry'
+--     starry.setup {}
+--     vim.cmd.colorscheme 'monokai'
+--   end,
+-- }
+
 return {
-  'tanvirtin/monokai.nvim',
-  priority = 1000,
+  "cpea2506/one_monokai.nvim",
   config = function()
-    local monokai = require('monokai')
-    local palette = monokai.pro
-    monokai.setup {
-      palette = palette
-    }
+    require("one_monokai").setup({
+      -- your options
+    })
   end,
 }
