@@ -5,7 +5,7 @@ return {
   opts = {
     options = {
       icons_enabled = true,
-      theme = 'monokai-pro',
+      theme = 'molokai',
       component_separators = '|',
       section_separators = '',
     },
