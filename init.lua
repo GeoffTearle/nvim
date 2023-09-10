@@ -84,6 +84,15 @@ vim.o.splitright = true -- Split windows right to the current windows
 vim.o.splitbelow = true -- Split windows below to the current windows
 vim.o.autowrite = true  -- Automatically save before :next, :make etc.
 
+vim.o.swapfile = false
+
+-- Indent Settingsc
+vim.opt.expandtab = false -- expand tabs into spaces
+vim.opt.shiftwidth = 4    -- number of spaces to use for each step of indent.
+vim.opt.tabstop = 4       -- number of spaces a TAB counts for
+vim.opt.autoindent = true -- copy indent from current line when starting a new line
+vim.opt.wrap = true
+
 -- [[ Basic Keymaps ]]
 local keymap = vim.keymap.set
 local default_opts = { noremap = true, silent = true }
@@ -404,8 +413,9 @@ end
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
-local cmp = require 'cmp'
-local luasnip = require 'luasnip'
+local cmp = require("cmp")
+local luasnip = require("luasnip")
+
 require('luasnip.loaders.from_vscode').lazy_load()
 luasnip.config.setup {}
 
@@ -457,9 +467,27 @@ cmp.setup {
   },
   sources = {
     { name = 'nvim_lsp' },
-    { name = 'luasnip' },
+    { name = "luasnip" },
+    { name = "buffer",  keyword_length = 5 },
+    { name = "path" },
   },
 }
+
+require('cmp').setup.cmdline("/", {
+  sources = cmp.config.sources({
+    { name = "nvim_lsp_document_symbol" },
+  }, {
+    { name = "buffer" },
+  }),
+})
+
+require('cmp').setup.cmdline(":", {
+  sources = cmp.config.sources({
+    { name = "path" },
+  }, {
+    { name = "cmdline" },
+  }),
+})
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
