@@ -41,52 +41,52 @@ require('lazy').setup({
 -- See `:help vim.o`
 
 -- Set highlight on search
-vim.o.hlsearch = false
+vim.opt.hlsearch = false
 
-vim.o.number = true
-vim.o.relativenumber = true
+vim.opt.number = true
+vim.opt.relativenumber = true
 
-vim.o.scrolloff = 7
+vim.opt.scrolloff = 7
 
 -- Enable mouse mode
-vim.o.mouse = 'a'
+vim.opt.mouse = 'a'
 
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
-vim.o.clipboard = 'unnamedplus'
+vim.opt.clipboard = 'unnamedplus'
 
 -- Enable break indent
-vim.o.breakindent = true
+vim.opt.breakindent = true
 
 -- Save undo history
-vim.o.undofile = true
-vim.o.undodir = vim.fn.stdpath('data') .. 'undo'
+vim.opt.undofile = true
+vim.opt.undodir = vim.fn.stdpath('data') .. 'undo'
 
 -- Case-insensitive searching UNLESS \C or capital in search
-vim.o.ignorecase = true
-vim.o.smartcase = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
 
 -- Keep signcolumn on by default
 vim.wo.signcolumn = 'yes'
 
 -- Decrease update time
-vim.o.updatetime = 250
-vim.o.timeoutlen = 300
+vim.opt.updatetime = 250
+vim.opt.timeoutlen = 300
 
 -- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
+vim.opt.completeopt = 'menuone,noselect'
 
-vim.o.termguicolors = true
+vim.opt.termguicolors = true
 
-vim.o.showmatch = true  -- Highlight matching parenthesis
-vim.o.splitright = true -- Split windows right to the current windows
-vim.o.splitbelow = true -- Split windows below to the current windows
-vim.o.autowrite = true  -- Automatically save before :next, :make etc.
+vim.opt.showmatch = true  -- Highlight matching parenthesis
+vim.opt.splitright = true -- Split windows right to the current windows
+vim.opt.splitbelow = true -- Split windows below to the current windows
+vim.opt.autowrite = true  -- Automatically save before :next, :make etc.
 
-vim.o.swapfile = false
+vim.opt.swapfile = false
 
--- Indent Settingsc
+-- Indent Settings
 vim.opt.expandtab = false -- expand tabs into spaces
 vim.opt.shiftwidth = 4    -- number of spaces to use for each step of indent.
 vim.opt.tabstop = 4       -- number of spaces a TAB counts for
