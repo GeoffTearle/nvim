@@ -468,12 +468,14 @@ cmp.setup {
   sources = {
     { name = 'nvim_lsp' },
     { name = "luasnip" },
-    { name = "buffer",  keyword_length = 5 },
+    { name = "buffer",                 keyword_length = 5 },
     { name = "path" },
+    { name = "nvim_lsp_signature_help" },
   },
 }
 
 require('cmp').setup.cmdline("/", {
+  mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({
     { name = "nvim_lsp_document_symbol" },
   }, {
@@ -482,10 +484,16 @@ require('cmp').setup.cmdline("/", {
 })
 
 require('cmp').setup.cmdline(":", {
+  mapping = cmp.mapping.preset.cmdline(),
   sources = cmp.config.sources({
     { name = "path" },
   }, {
-    { name = "cmdline" },
+    {
+      name = "cmdline",
+      option = {
+        ignore_cmds = { 'Man', '!' }
+      }
+    },
   }),
 })
 
