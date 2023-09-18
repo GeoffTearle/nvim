@@ -1,41 +1,44 @@
-return {
-  'loctvl842/monokai-pro.nvim',
-  priority = 1000,
-  config = function()
-    require('monokai-pro').setup(
-      {
-        terminal_colors = true,
-        devicons = true, -- highlight the icons of `nvim-web-devicons`
-        styles = {
-          comment = { italic = true },
-          keyword = { italic = true },       -- any other keyword
-          type = { italic = true },          -- (preferred) int, long, char, etc
-          storageclass = { italic = true },  -- static, register, volatile, etc
-          structure = { italic = true },     -- struct, union, enum, etc
-          parameter = { italic = true },     -- parameter pass in function
-          annotation = { italic = true },
-          tag_attribute = { italic = true }, -- attribute of tag in reactjs
-        },
-        filter = "pro",                      -- classic | octagon | pro | machine | ristretto | spectrum
-      }
-    )
-    vim.cmd.colorscheme 'monokai-pro'
-  end,
-}
-
 -- return {
---   'tanvirtin/monokai.nvim',
---   priority = 1000,
---   config = function()
---     local monokai = require('monokai')
---     local palette = monokai.classic
---     monokai.setup {
---       palette = palette
---     }
---     vim.cmd.colorscheme 'monokai'
---   end,
+-- 	'loctvl842/monokai-pro.nvim',
+-- 	priority = 1000,
+-- 	config = function()
+-- 		require('monokai-pro').setup(
+-- 			{
+-- 				terminal_colors = true,
+-- 				devicons = true, -- highlight the icons of `nvim-web-devicons`
+-- 				styles = {
+-- 					comment = { italic = true },
+-- 					keyword = { italic = true }, -- any other keyword
+-- 					type = { italic = true }, -- (preferred) int, long, char, etc
+-- 					storageclass = { italic = true }, -- static, register, volatile, etc
+-- 					structure = { italic = true }, -- struct, union, enum, etc
+-- 					parameter = { italic = true }, -- parameter pass in function
+-- 					annotation = { italic = true },
+-- 					tag_attribute = { italic = true }, -- attribute of tag in reactjs
+-- 				},
+-- 				filter = "spectrum",    -- classic | octagon | pro | machine | ristretto | spectrum
+-- 				plugins = {
+--
+-- 				}
+-- 			}
+-- 		)
+-- 		vim.cmd.colorscheme 'monokai-pro'
+-- 	end,
 -- }
 
+-- return {
+-- 	'tanvirtin/monokai.nvim',
+-- 	priority = 1000,
+-- 	config = function()
+-- 		local monokai = require('monokai')
+-- 		local palette = monokai.pro
+-- 		monokai.setup {
+-- 			palette = palette
+-- 		}
+-- 		vim.cmd.colorscheme 'monokai'
+-- 	end,
+-- }
+--
 -- return {
 --   'ray-x/starry.nvim',
 --   priority = 1000,
@@ -82,3 +85,11 @@ return {
 --     }
 --   end,
 -- }
+
+return {
+	'sainnhe/sonokai',
+	config = function()
+		vim.cmd.colorscheme 'sonokai'
+	end
+
+}
