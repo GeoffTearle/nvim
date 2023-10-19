@@ -13,6 +13,7 @@ return {
 		"nvim-tree/nvim-web-devicons", -- not strictly required, but recommended
 		"MunifTanjim/nui.nvim",
 	},
+
 	config = function()
 		vim.fn.sign_define('DiagnosticSignError', { text = ' ', texthl = 'DiagnosticSignError' })
 		vim.fn.sign_define('DiagnosticSignWarn', { text = ' ', texthl = 'DiagnosticSignWarn' })
@@ -33,7 +34,7 @@ return {
 						local root_len = string.len(root_name) + 4
 						return {
 							width = math.max(root_len, 50),
-							height = vim.o.lines - 4
+							height = vim.o.lines - 2,
 						}
 					end
 				},
