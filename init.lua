@@ -285,23 +285,23 @@ local servers = {
   },
 }
 
--- local is_pinephone = function()
---   local os = vim.trim(vim.fn.system("uname -s"))
---   local arch = vim.trim(vim.fn.system("uname -m"))
---   if os == "Linux" and arch == "aarch64" then
---     return true
---   end
---   return false
--- end
+local is_pinephone = function()
+  local os = vim.trim(vim.fn.system("uname -s"))
+  local arch = vim.trim(vim.fn.system("uname -m"))
+  if os == "Linux" and arch == "aarch64" then
+    return true
+  end
+  return false
+end
 
--- if not is_pinephone() then
+if not is_pinephone() then
   servers.lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
     },
   }
--- end
+end
 
 
 -- Setup neovim lua configuration
@@ -320,9 +320,9 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup_handlers {
   function(server_name)
-    -- if server_name == "lua_ls" and is_pinephone() then
-    --   return
-    -- end
+    if server_name == "lua_ls" and is_pinephone() then
+      return
+    end
 
     require('lspconfig')[server_name].setup {
       capabilities = capabilities,
@@ -333,18 +333,18 @@ mason_lspconfig.setup_handlers {
   end
 }
 
--- if is_pinephone() then
---   require("lspconfig").lua_ls.setup {
---     capabilities = capabilities,
---     on_attach = on_attach,
---     settings = {
---       Lua = {
---         workspace = { checkThirdParty = false },
---         telemetry = { enable = false },
---       }
---     },
---   }
--- end
+if is_pinephone() then
+  require("lspconfig").lua_ls.setup {
+    capabilities = capabilities,
+    on_attach = on_attach,
+    settings = {
+      Lua = {
+        workspace = { checkThirdParty = false },
+        telemetry = { enable = false },
+      }
+    },
+  }
+end
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
