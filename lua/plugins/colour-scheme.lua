@@ -1,4 +1,4 @@
-local scheme = "flexoki"
+local scheme = "catppuccin"
 
 if scheme == "catppuccin" then
 	return {
