@@ -1,3 +1,6 @@
+local optsMgr = require('config.options')
+optsMgr.apply()
+
 local pluginMgr = require('config.plugins')
 pluginMgr.ensureInstalled()
 
