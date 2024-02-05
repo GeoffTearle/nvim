@@ -13,7 +13,20 @@ return {
 
 			-- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
 			auto_install = true,
-			ensure_installed = { 'c', 'cpp', 'go', 'lua', 'rust', 'vimdoc', 'vim', 'markdown', 'markdown_inline', 'regex' },
+			ensure_installed = {
+				'c',
+				'cpp',
+				'go',
+				'lua',
+				'rust',
+				'vimdoc',
+				'vim',
+				'markdown',
+				'markdown_inline',
+				'regex',
+				'teal',
+			},
+
 
 			highlight = { enable = true },
 			indent = { enable = true },

@@ -1,97 +1,7 @@
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
+local pluginMgr = require('config.plugins')
+pluginMgr.ensureInstalled()
 
--- Install package manager
---    https://github.com/folke/lazy.nvim
---    `:help lazy.nvim.txt` for more info
-local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system {
-    'git',
-    'clone',
-    '--filter=blob:none',
-    'https://github.com/folke/lazy.nvim.git',
-    '--branch=stable', -- latest stable release
-    lazypath,
-  }
-end
-vim.opt.rtp:prepend(lazypath)
-
--- NOTE: Here is where you install your plugins.
---  You can configure plugins using the `config` key.
---
---  You can also configure plugins after the setup call,
---    as they will be available in your neovim runtime.
-require('lazy').setup({
-  -- NOTE: First, some plugins that don't require any configuration
-  -- Git related plugins
-  'tpope/vim-fugitive',
-  'tpope/vim-rhubarb',
-
-  -- Detect tabstop and shiftwidth automatically
-  -- 'tpope/vim-sleuth',
-
-  { import = 'plugins' },
-}, {})
-
--- [[ Setting options ]]
--- See `:help vim.o`
-
--- Set highlight on search
-vim.opt.hlsearch = false
-
-vim.opt.number = true
-vim.opt.relativenumber = true
-
-vim.opt.scrolloff = 7
-
--- Enable mouse mode
-vim.opt.mouse = 'a'
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-vim.opt.clipboard = 'unnamedplus'
-
--- Enable break indent
-vim.opt.breakindent = true
-
--- Save undo history
-vim.opt.undofile = true
-vim.opt.undodir = vim.fn.stdpath('data') .. 'undo'
-
--- Case-insensitive searching UNLESS \C or capital in search
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-
--- Keep signcolumn on by default
-vim.wo.signcolumn = 'yes'
-
--- Decrease update time
-vim.opt.updatetime = 250
-vim.opt.timeoutlen = 300
-
--- Set completeopt to have a better completion experience
-vim.opt.completeopt = 'menuone,noselect'
-
-vim.opt.termguicolors = true
-
-vim.opt.showmatch = true  -- Highlight matching parenthesis
-vim.opt.splitright = true -- Split windows right to the current windows
-vim.opt.splitbelow = true -- Split windows below to the current windows
-vim.opt.autowrite = true  -- Automatically save before :next, :make etc.
-
-vim.opt.swapfile = false
-
--- Indent Settings
-vim.opt.expandtab = false -- expand tabs into spaces
-vim.opt.shiftwidth = 4    -- number of spaces to use for each step of indent.
-vim.opt.tabstop = 4       -- number of spaces a TAB counts for
-vim.opt.autoindent = true -- copy indent from current line when starting a new line
-vim.opt.wrap = true
+pluginMgr.load()
 
 -- [[ Basic Keymaps ]]
 local keymap = vim.keymap.set
@@ -301,6 +211,7 @@ if not is_pinephone() then
       telemetry = { enable = false },
     },
   }
+  servers.teal_ls = {}
 end
 
 
@@ -320,8 +231,14 @@ mason_lspconfig.setup {
 
 mason_lspconfig.setup_handlers {
   function(server_name)
-    if server_name == "lua_ls" and is_pinephone() then
-      return
+    if is_pinephone() then
+      if server_name == "lua_ls" then
+        return
+      end
+
+      if server_name == "teal_ls" then
+        return
+      end
     end
 
     require('lspconfig')[server_name].setup {
@@ -334,7 +251,9 @@ mason_lspconfig.setup_handlers {
 }
 
 if is_pinephone() then
-  require("lspconfig").lua_ls.setup {
+  local lspconfig = require("lspconfig")
+
+  lspconfig.lua_ls.setup {
     capabilities = capabilities,
     on_attach = on_attach,
     settings = {
@@ -343,6 +262,11 @@ if is_pinephone() then
         telemetry = { enable = false },
       }
     },
+  }
+
+  lspconfig.teal_ls.setup {
+    capabilities = capabilities,
+    on_attach = on_attach,
   }
 end
 
