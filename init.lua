@@ -3,7 +3,6 @@ optsMgr.apply()
 
 local pluginMgr = require("config.plugins")
 pluginMgr.ensureInstalled()
-
 pluginMgr.load()
 
 -- [[ Basic Keymaps ]]
@@ -318,7 +317,7 @@ cmp.setup({
   sources = {
     { name = "nvim_lsp" },
     { name = "luasnip" },
-    { name = "buffer", keyword_length = 5 },
+    { name = "buffer",                 keyword_length = 5 },
     { name = "path" },
     { name = "nvim_lsp_signature_help" },
   },

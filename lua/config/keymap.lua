@@ -1,4 +1,8 @@
--- general keybingings
+-- general keybindings
+
+local keymap = vim.keymap.set
+local default_opts = { noremap = true, silent = true }
+local expr_opts = { noremap = true, expr = true, silent = true }
 
 local map = vim.keymap.set
 
@@ -13,6 +17,12 @@ map("n", "<C-h>", "<C-w>h", { desc = "Go to left window", remap = true })
 map("n", "<C-j>", "<C-w>j", { desc = "Go to lower window", remap = true })
 map("n", "<C-k>", "<C-w>k", { desc = "Go to upper window", remap = true })
 map("n", "<C-l>", "<C-w>l", { desc = "Go to right window", remap = true })
+
+-- Better split switching
+keymap("", "<C-j>", "<C-W>j", default_opts)
+keymap("", "<C-k>", "<C-W>k", default_opts)
+keymap("", "<C-h>", "<C-W>h", default_opts)
+keymap("", "<C-l>", "<C-W>l", default_opts)
 
 -- Resize window using <ctrl> arrow keys
 map("n", "<C-Up>", "<cmd>resize +2<cr>", { desc = "Increase window height" })
