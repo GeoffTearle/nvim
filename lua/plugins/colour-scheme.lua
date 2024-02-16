@@ -1,4 +1,4 @@
-local scheme = "catppuccin"
+local scheme = "one_monokai"
 
 if scheme == "catppuccin" then
   return {
@@ -24,5 +24,17 @@ if scheme == "flexoki" then
     config = function()
       vim.cmd.colorscheme("flexoki")
     end,
+  }
+end
+
+if scheme == "one_monokai" then
+  return {
+    "cpea2506/one_monokai.nvim",
+    priority = 1000,
+    config = function()
+      require("one_monokai").setup({
+        italics = false, -- disable italics
+      })
+    end
   }
 end
