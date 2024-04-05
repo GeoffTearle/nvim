@@ -11,6 +11,7 @@ return {
   dependencies = {
     -- Creates a beautiful debugger UI
     "rcarriga/nvim-dap-ui",
+    "nvim-neotest/nvim-nio",
 
     -- Installs the debug adapters for you
     "williamboman/mason.nvim",
@@ -23,10 +24,12 @@ return {
     local dap = require("dap")
     local dapui = require("dapui")
 
+    vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
+
     require("mason-nvim-dap").setup({
       -- Makes a best effort to setup the various debuggers with
       -- reasonable debug configurations
-      automatic_setup = true,
+      automatic_installation = true,
 
       -- You can provide additional configuration to the handlers,
       -- see mason-nvim-dap README for more information
@@ -49,7 +52,7 @@ return {
     vim.keymap.set("n", "<leader>B", function()
       dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
     end, { desc = "Debug: Set Breakpoint" })
-
+    vim.keymap.set("n", "<leader>td", "<cmd>lua require('dap-go').debug_test()<CR>", { desc = "Debug Nearest (Go)" })
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
     dapui.setup({
@@ -76,10 +79,32 @@ return {
     vim.keymap.set("n", "<F7>", dapui.toggle, { desc = "Debug: See last session result." })
 
     dap.listeners.after.event_initialized["dapui_config"] = dapui.open
-    dap.listeners.before.event_terminated["dapui_config"] = dapui.close
-    dap.listeners.before.event_exited["dapui_config"] = dapui.close
+    -- dap.listeners.before.event_terminated["dapui_config"] = dapui.close
+    -- dap.listeners.before.event_exited["dapui_config"] = dapui.close
 
     -- Install golang specific config
-    require("dap-go").setup()
+    require("dap-go").setup({
+      dap_configurations = {
+        {
+          type = "go",
+          name = "Attach remote",
+          request = "attach",
+          mode = "remote",
+          port = 4040,
+          trace = "verbose",
+          substitutePath = {
+            {
+              from = "${workspaceFolder}/api",
+              to = "/go/src/api",
+            },
+          },
+        },
+      },
+      delve = {
+        path = vim.fn.exepath("dlv"),
+        -- initialize_timeout_sec = 20,
+        port = "${port}",
+      },
+    })
   end,
 }
