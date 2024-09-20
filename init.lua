@@ -33,9 +33,35 @@ require("telescope").setup({
 -- Enable telescope fzf native, if installed
 pcall(require("telescope").load_extension, "fzf")
 
+-- vim.api.nvim_create_autocmd("LspAttach", {
+--   callback = function(ev)
+--     local client = vim.lsp.get_client_by_id(ev.data.client_id)
+--     if client == nil then
+--       return
+--     end
+--
+--     if client.name == "gopls" then
+--       if not client.server_capabilities.semanticTokensProvider then
+--         local semantic = client.config.capabilities.textDocument.semanticTokens
+--         if semantic == nil then
+--           return
+--         end
+--
+--         client.server_capabilities.semanticTokensProvider = {
+--           full = true,
+--           legend = {
+--             tokenTypes = semantic.tokenTypes,
+--             tokenModifiers = semantic.tokenModifiers,
+--           },
+--           range = true,
+--         }
+--       end
+--     end
+--   end,
+-- })
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
   -- NOTE: Remember that lua is a real programming language, and as such it is possible
   -- to define small helper and utility functions so you don't have to repeat yourself
   -- many times.
@@ -83,20 +109,39 @@ local on_attach = function(_, bufnr)
   vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
     vim.lsp.buf.format()
   end, { desc = "Format current buffer with LSP" })
+
+  if client.name == "gopls" then
+    if not client.server_capabilities.semanticTokensProvider then
+      local semantic = client.config.capabilities.textDocument.semanticTokens
+      if semantic == nil then
+        return
+      end
+
+      client.server_capabilities.semanticTokensProvider = {
+        full = true,
+        legend = {
+          tokenTypes = semantic.tokenTypes,
+          tokenModifiers = semantic.tokenModifiers,
+        },
+        range = true,
+      }
+    end
+  end
 end
 
 local efmLanguages = {
   typescript = {
     require("efmls-configs.linters.eslint_d"),
-    require("efmls-configs.formatters.prettier_d"),
+    -- require("efmls-configs.formatters.prettier_d"),
   },
   typescriptreact = {
     require("efmls-configs.linters.eslint_d"),
-    require("efmls-configs.formatters.prettier_d"),
+    -- require("efmls-configs.formatters.prettier_d"),
   },
   lua = {
+    require("efmls-configs.linters.selene"),
     require("efmls-configs.linters.luacheck"),
-    require("efmls-configs.formatters.stylua"),
+    -- require("efmls-configs.formatters.stylua"),
   },
   proto = {
     require("efmls-configs.linters.buf"),
@@ -104,7 +149,13 @@ local efmLanguages = {
   },
   json = {
     require("efmls-configs.linters.jq"),
-    require("efmls-configs.formatters.prettier_d"),
+    -- require("efmls-configs.formatters.prettier_d"),
+  },
+  gitcommit = {
+    require("efmls-configs.linters.gitlint"),
+  },
+  docker = {
+    require("efmls-configs.linters.hadolint"),
   },
 }
 
@@ -117,14 +168,35 @@ local efmLanguages = {
 --  If you want to override the default filetypes that your language server will attach to you can
 --  define the property 'filetypes' to the map in question.
 local servers = {
-  golangci_lint_ls = {},
-  tsserver = {},
-  bufls = {},
-  gopls = {
-    keys = {
-      -- Workaround for the lack of a DAP strategy in neotest-go: https://github.com/nvim-neotest/neotest-go/issues/12
-      { "<leader>td", "<cmd>lua require('dap-go').debug_test()<CR>", desc = "Debug Nearest (Go)" },
+  protols = {},
+  nixd = {},
+  nil_ls = {},
+  golangci_lint_ls = {
+    init_options = {
+      command = {
+        "golangci-lint",
+        "run",
+        "--tests",
+        "--build-tags",
+        "integration,unit",
+        "--concurrency",
+        "16",
+        "--max-issues-per-linter",
+        "0",
+        "--max-same-issues",
+        "0",
+        "--out-format",
+        "json",
+      },
     },
+  },
+  tsserver = {},
+  -- bufls = {},
+  gopls = {
+    -- keys = {
+    -- Workaround for the lack of a DAP strategy in neotest-go: https://github.com/nvim-neotest/neotest-go/issues/12
+    -- { "<leader>td", "<cmd>lua require('dap-go').debug_test()<CR>", desc = "Debug Nearest (Go)" },
+    -- },
     flags = { debounce_text_changes = 200 },
     single_file_support = false,
     settings = {
@@ -164,6 +236,7 @@ local servers = {
           parameterNames = true,
           rangeVariableTypes = true,
         },
+        buildFlags = { "-tags=integration,unit" },
       },
     },
   },
@@ -176,6 +249,34 @@ local servers = {
     init_options = {
       documentFormatting = true,
       documentRangeFormatting = true,
+    },
+  },
+  yamlls = {
+    settings = {
+      yaml = {
+        schemas = {
+          ["https://raw.githubusercontent.com/quantumblacklabs/kedro/develop/static/jsonschema/kedro-catalog-0.17.json"] =
+          "conf/**/*catalog*",
+          ["https://json.schemastore.org/github-workflow.json"] = "/.github/workflows/*",
+        },
+      },
+      redhat = {
+        telemetry = {
+          enabled = false,
+        },
+      },
+    },
+  },
+  ruff_lsp = {},
+  basedpyright = {
+    settings = {
+      basedpyright = {
+        analysis = {
+          autoSearchPaths = true,
+          -- diagnosticMode = "openFilesOnly",
+          useLibraryCodeForTypes = true,
+        },
+      },
     },
   },
 }
@@ -212,20 +313,27 @@ mason_lspconfig.setup({
   ensure_installed = vim.tbl_keys(servers),
 })
 
-mason_lspconfig.setup_handlers({
-  function(server_name)
-    if is_pinephone() then
-      if server_name == "lua_ls" then
-        return
-      end
-    end
+-- mason_lspconfig.setup_handlers({
+--   function(server_name)
+--     if is_pinephone() then
+--       if server_name == "lua_ls" then
+--         return
+--       end
+--     end
+--
+--     require("lspconfig")[server_name].setup(vim.tbl_extend("force", servers[server_name] or {}, {
+--       capabilities = capabilities,
+--       on_attach = on_attach,
+--     }))
+--   end,
+-- })
 
-    require("lspconfig")[server_name].setup(vim.tbl_extend("force", servers[server_name] or {}, {
-      capabilities = capabilities,
-      on_attach = on_attach,
-    }))
-  end,
-})
+for i, server_name in pairs(vim.tbl_keys(servers)) do
+  require("lspconfig")[server_name].setup(vim.tbl_extend("force", servers[server_name] or {}, {
+    capabilities = capabilities,
+    on_attach = on_attach,
+  }))
+end
 
 if is_pinephone() then
   local lspconfig = require("lspconfig")
@@ -283,6 +391,8 @@ cmp.setup({
         else
           cmp.confirm()
         end
+      elseif luasnip.locally_jumpable(1) then
+        luasnip.jump(1)
       else
         fallback()
       end
@@ -299,10 +409,10 @@ cmp.setup({
   }),
   sources = {
     { name = "nvim_lsp" },
+    { name = "nvim_lsp_signature_help" },
     { name = "luasnip" },
     { name = "buffer",                 keyword_length = 5 },
     { name = "path" },
-    { name = "nvim_lsp_signature_help" },
   },
 })
 

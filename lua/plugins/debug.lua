@@ -5,7 +5,6 @@
 -- Primarily focused on configuring the debugger for Go
 
 return {
-  -- NOTE: Yes, you can install new plugins here!
   "mfussenegger/nvim-dap",
   -- NOTE: And you can specify dependencies as well
   dependencies = {
@@ -48,11 +47,20 @@ return {
     vim.keymap.set("n", "<F1>", dap.step_into, { desc = "Debug: Step Into" })
     vim.keymap.set("n", "<F2>", dap.step_over, { desc = "Debug: Step Over" })
     vim.keymap.set("n", "<F3>", dap.step_out, { desc = "Debug: Step Out" })
-    vim.keymap.set("n", "<leader>b", dap.toggle_breakpoint, { desc = "Debug: Toggle Breakpoint" })
-    vim.keymap.set("n", "<leader>B", function()
+
+    vim.keymap.set("n", "<leader>db", dap.toggle_breakpoint, { desc = "Debug: Toggle Breakpoint" })
+    vim.keymap.set("n", "<leader>dB", function()
       dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
     end, { desc = "Debug: Set Breakpoint" })
+
     vim.keymap.set("n", "<leader>td", "<cmd>lua require('dap-go').debug_test()<CR>", { desc = "Debug Nearest (Go)" })
+
+    vim.keymap.set({ "n", "v" }, "<Leader>dh", function()
+      require("dap.ui.widgets").hover()
+    end)
+    vim.keymap.set({ "n", "v" }, "<Leader>dp", function()
+      require("dap.ui.widgets").preview()
+    end)
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
     dapui.setup({
@@ -90,12 +98,19 @@ return {
           name = "Attach remote",
           request = "attach",
           mode = "remote",
-          port = 4040,
-          trace = "verbose",
+          port = "4040",
+          connect = {
+            host = "127.0.0.1",
+            port = "4040",
+          },
           substitutePath = {
             {
               from = "${workspaceFolder}/api",
               to = "/go/src/api",
+            },
+            {
+              from = "${workspaceFolder}/pkg",
+              to = "/go/src/pkg",
             },
           },
         },
@@ -103,7 +118,10 @@ return {
       delve = {
         path = vim.fn.exepath("dlv"),
         -- initialize_timeout_sec = 20,
-        port = "${port}",
+        port = "4040",
+        build_flags = {
+          "-tags=integration,unit",
+        },
       },
     })
   end,

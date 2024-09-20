@@ -16,6 +16,8 @@ function keymapManager.general()
   keymap("n", "<C-Space>", "<Nop>", default_opts)
   keymap("n", "<C-Leader>", "<Nop>", default_opts)
 
+  keymap("n", "gi", "<Nop>", default_opts)
+
   -- Yanking a line should act like D and C
   keymap("n", "Y", "y$", default_opts)
 
@@ -51,12 +53,13 @@ function keymapManager.general()
   map("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Move up" })
 
   -- buffers
-  map("n", "<S-h>", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
-  map("n", "<S-l>", "<cmd>bnext<cr>", { desc = "Next buffer" })
-  map("n", "[b", "<cmd>bprevious<cr>", { desc = "Prev buffer" })
-  map("n", "]b", "<cmd>bnext<cr>", { desc = "Next buffer" })
-  map("n", "<leader>bb", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
-  map("n", "<leader>`", "<cmd>e #<cr>", { desc = "Switch to Other Buffer" })
+  map("n", "<S-h>", "<cmd>BufferLineCyclePrev<cr>", { desc = "Prev buffer" })
+  map("n", "<S-l>", "<cmd>BufferLineCycleNext<cr>", { desc = "Next buffer" })
+  map("n", "<leader>bp", "<Cmd>BufferLineTogglePin<CR>", { desc = "Toggle Pin" })
+  map("n", "<leader>bP", "<Cmd>BufferLineGroupClose ungrouped<CR>", { desc = "Delete Non-Pinned Buffers" })
+  map("n", "<leader>bo", "<Cmd>BufferLineCloseOthers<CR>", { desc = "Delete Other Buffers" })
+  map("n", "<leader>br", "<Cmd>BufferLineCloseRight<CR>", { desc = "Delete Buffers to the Right" })
+  map("n", "<leader>bl", "<Cmd>BufferLineCloseLeft<CR>", { desc = "Delete Buffers to the Left" })
 
   -- Clear search with <esc>
   map({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })
@@ -133,8 +136,8 @@ function keymapManager.general()
   end
 
   map("n", "<leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
-  map("n", "<leader>d", diagnostic_goto(true), { desc = "Next Diagnostic" })
-  map("n", "<leader>D", diagnostic_goto(false), { desc = "Prev Diagnostic" })
+  -- map("n", "<leader>d", diagnostic_goto(true), { desc = "Next Diagnostic" })
+  -- map("n", "<leader>D", diagnostic_goto(false), { desc = "Prev Diagnostic" })
   map("n", "<leader>e", diagnostic_goto(true, "ERROR"), { desc = "Next Error" })
   map("n", "<leader>E", diagnostic_goto(false, "ERROR"), { desc = "Prev Error" })
   map("n", "<leader>w", diagnostic_goto(true, "WARN"), { desc = "Next Warning" })
@@ -280,6 +283,13 @@ function keymapManager.neotest()
         require("neotest").run.stop()
       end,
       desc = "Stop",
+    },
+    {
+      "<leader>td",
+      function()
+        require("neotest").run.run({ suite = false, strategy = "dap" })
+      end,
+      desc = "Debug nearest test",
     },
   }
 end
