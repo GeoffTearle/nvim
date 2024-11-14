@@ -127,6 +127,11 @@ local on_attach = function(client, bufnr)
       }
     end
   end
+
+  local function buf_set_option(...)
+    vim.api.nvim_buf_set_option(bufnr, ...)
+  end
+  buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
 end
 
 local efmLanguages = {
@@ -137,11 +142,6 @@ local efmLanguages = {
   typescriptreact = {
     require("efmls-configs.linters.eslint_d"),
     -- require("efmls-configs.formatters.prettier_d"),
-  },
-  lua = {
-    require("efmls-configs.linters.selene"),
-    require("efmls-configs.linters.luacheck"),
-    -- require("efmls-configs.formatters.stylua"),
   },
   proto = {
     require("efmls-configs.linters.buf"),
@@ -157,6 +157,9 @@ local efmLanguages = {
   docker = {
     require("efmls-configs.linters.hadolint"),
   },
+  -- sql = {
+  --   require("efmls-configs.linters.sqlfluff"),
+  -- },
 }
 
 -- Enable the following language servers
@@ -190,7 +193,7 @@ local servers = {
       },
     },
   },
-  tsserver = {},
+  ts_ls = {},
   -- bufls = {},
   gopls = {
     -- keys = {
@@ -239,6 +242,9 @@ local servers = {
         buildFlags = { "-tags=integration,unit" },
       },
     },
+    init_options = {
+      usePlaceholders = true,
+    },
   },
   efm = {
     filetypes = vim.tbl_keys(efmLanguages),
@@ -267,13 +273,79 @@ local servers = {
       },
     },
   },
-  ruff_lsp = {},
+  ruff = {
+    init_options = {
+      settings = {
+        lineLength = 88,
+        configurationPreference = "editorFirst",
+        fixAll = false,
+        organizeImports = false,
+        showSyntaxErrors = true,
+        codeAction = {
+          fixViolation = {
+            enable = true,
+          },
+          disableRuleComment = {
+            enable = true,
+          },
+        },
+        lint = {
+          enable = true,
+          extendSelect = {
+            "A",
+            "ARG",
+            "ASYNC",
+            "BLE",
+            "C4",
+            "COM",
+            "E4",
+            "E7",
+            "E9",
+            "ERA",
+            "F",
+            "FBT",
+            "FIX",
+            "FURB",
+            "I",
+            "ICN",
+            "INT",
+            "ISC",
+            "N",
+            "PIE",
+            "PL",
+            "PTH",
+            "RET",
+            "RUF",
+            "SIM",
+            "SLF",
+            "SLOT",
+            "TCH",
+            "TD",
+            "TID",
+            "YTT",
+          },
+          extendIgnore = {
+            "PLR0904",
+            "PLR0911",
+            "ANN003",
+          },
+          ignore = {
+            "PLR0904",
+            "PLR0911",
+            "ANN003",
+          },
+        },
+      },
+    },
+  },
   basedpyright = {
     settings = {
       basedpyright = {
+        disableOrganizeImports = true,
         analysis = {
           autoSearchPaths = true,
-          -- diagnosticMode = "openFilesOnly",
+          autoImportCompletions = true,
+          diagnosticMode = "workspace",
           useLibraryCodeForTypes = true,
         },
       },
@@ -303,14 +375,30 @@ end
 require("neodev").setup()
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
+
+local client_capabilities = function()
+  return vim.tbl_deep_extend(
+    "force",
+    vim.lsp.protocol.make_client_capabilities(),
+    -- nvim-cmp supports additional completion capabilities, so broadcast that to servers.
+    -- require("blink.cmp").get_lsp_capabilities(vim.lsp.protocol.make_client_capabilities()),
+    require("cmp_nvim_lsp").default_capabilities(),
+    -- vim.lsp.protocol.make_client_capabilities(),
+    {
+      workspace = {
+        didChangeWatchedFiles = { dynamicRegistration = false },
+      },
+    }
+  )
+end
+
+local capabilities = client_capabilities()
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require("mason-lspconfig")
 
 mason_lspconfig.setup({
-  ensure_installed = vim.tbl_keys(servers),
+  -- ensure_installed = vim.tbl_keys(servers),
 })
 
 -- mason_lspconfig.setup_handlers({
@@ -328,7 +416,7 @@ mason_lspconfig.setup({
 --   end,
 -- })
 
-for i, server_name in pairs(vim.tbl_keys(servers)) do
+for _, server_name in pairs(vim.tbl_keys(servers)) do
   require("lspconfig")[server_name].setup(vim.tbl_extend("force", servers[server_name] or {}, {
     capabilities = capabilities,
     on_attach = on_attach,
@@ -408,11 +496,11 @@ cmp.setup({
     end, { "i", "s" }),
   }),
   sources = {
-    { name = "nvim_lsp" },
+    { name = "nvim_lsp",               group_index = 1,   keyword_length = 1 },
     { name = "nvim_lsp_signature_help" },
-    { name = "luasnip" },
-    { name = "buffer",                 keyword_length = 5 },
-    { name = "path" },
+    { name = "luasnip",                keyword_length = 3 },
+    { name = "buffer",                 group_index = 2,   keyword_length = 3 },
+    { name = "path",                   max_item_count = 5 },
   },
 })
 

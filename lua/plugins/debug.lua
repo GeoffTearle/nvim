@@ -18,6 +18,7 @@ return {
 
     -- Add your own debuggers here
     "leoluz/nvim-dap-go",
+    "mfussenegger/nvim-dap-python",
   },
   config = function()
     local dap = require("dap")
@@ -53,7 +54,7 @@ return {
       dap.set_breakpoint(vim.fn.input("Breakpoint condition: "))
     end, { desc = "Debug: Set Breakpoint" })
 
-    vim.keymap.set("n", "<leader>td", "<cmd>lua require('dap-go').debug_test()<CR>", { desc = "Debug Nearest (Go)" })
+    -- vim.keymap.set("n", "<leader>td", "<cmd>lua require('dap-go').debug_test()<CR>", { desc = "Debug Nearest (Go)" })
 
     vim.keymap.set({ "n", "v" }, "<Leader>dh", function()
       require("dap.ui.widgets").hover()
@@ -124,5 +125,14 @@ return {
         },
       },
     })
+
+    -- python
+    require("dap-python").setup()
+    require("dap-python").resolve_python = function()
+      -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
+      -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
+      -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
+      return os.getenv("VIRTUAL_ENV") .. "/bin/python" or "/usr/bin/env python"
+    end
   end,
 }

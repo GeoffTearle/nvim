@@ -75,6 +75,7 @@ function optionsManager.apply()
   vim.wo.signcolumn = "yes"          -- Keep signcolumn on by default
 
   vim.g.markdown_recommended_style = 0
+  vim.o.pumblend = 20
 end
 
 return optionsManager

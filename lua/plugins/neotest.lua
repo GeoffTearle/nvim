@@ -6,7 +6,7 @@ return {
     "antoinemadec/FixCursorHold.nvim",
     "nvim-treesitter/nvim-treesitter",
     "fredrikaverpil/neotest-golang",
-    -- "nvim-neotest/neotest-go",
+    "nvim-neotest/neotest-python",
   },
   config = function()
     -- get neotest namespace (api call creates or returns namespace)
@@ -22,7 +22,7 @@ return {
     require("neotest").setup({
       -- your neotest config here
       adapters = {
-        require("neotest-golang")({ -- Specify configuration
+        require("neotest-golang")({
           go_test_args = {
             "-count=1",
             "-tags=integration,unit",
@@ -35,13 +35,19 @@ return {
               build_flags = { "-tags=integration,unit" },
             },
           },
-        }), -- Registration
-        -- require("neotest-go")({
-        --   experimental = {
-        --     test_table = true,
-        --   },
-        --   args = { "-count=1" },
-        -- }),
+        }),
+        require("neotest-python")({
+          runner = "pytest",
+          dap = { justMyCode = true },
+          pytest_discover_instances = true,
+          args = { "--log-level", "DEBUG" },
+          python = function()
+            -- debugpy supports launching an application with a different interpreter then the one used to launch debugpy itself.
+            -- The code below looks for a `venv` or `.venv` folder in the current directly and uses the python within.
+            -- You could adapt this - to for example use the `VIRTUAL_ENV` environment variable.
+            return os.getenv("VIRTUAL_ENV") .. "/bin/python" or "/usr/bin/env python"
+          end,
+        }),
       },
       discovery = {
         -- Drastically improve performance in ginormous projects by
