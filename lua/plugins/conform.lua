@@ -18,10 +18,10 @@ return {
       toml = { "taplo" },
       typescript = { "prettierd", "prettier", stop_after_first = true },
       typescriptreact = { "prettierd", "prettier", stop_after_first = true },
-      sql = { "sqlfluff" },
+      sql = { "sqlfluff_format", "sqlfluff_fix" },
     },
     -- Set up format-on-save
-    format_on_save = { timeout_ms = 50000 },
+    format_on_save = { timeout_ms = 5000 },
     -- Customize formatters
     formatters = {
       golines = {
@@ -41,6 +41,37 @@ return {
             "-s",
             "localmodule",
           },
+        }
+      end,
+      sqlfluff_format = function()
+        return {
+          command = "sqlfluff",
+          args = { "format", "-" },
+          stdin = true,
+          cwd = require("conform.util").root_file({
+            ".sqlfluff",
+            "pep8.ini",
+            "pyproject.toml",
+            "setup.cfg",
+            "tox.ini",
+          }),
+          require_cwd = true,
+        }
+      end,
+      sqlfluff_fix = function()
+        return {
+          command = "sqlfluff",
+          args = { "fix", "-" },
+          exit_codes = { 0, 1 }, -- ignore exit code 1 as this happens when there simply exist unfixable lints
+          stdin = true,
+          cwd = require("conform.util").root_file({
+            ".sqlfluff",
+            "pep8.ini",
+            "pyproject.toml",
+            "setup.cfg",
+            "tox.ini",
+          }),
+          require_cwd = true,
         }
       end,
     },

@@ -7,9 +7,32 @@ return {
     linters_by_ft = {
       lua = { "luacheck", "selene" },
       sql = { "sqlfluff" },
+      go = { "golangcilint" },
     },
     ---@type table<string,table>
     linters = {
+      golangcilint = {
+        args = {
+          "run",
+          "--tests",
+          "--build-tags",
+          "integration,unit",
+          "--concurrency",
+          "16",
+          "--max-issues-per-linter",
+          "0",
+          "--max-same-issues",
+          "0",
+          "--out-format",
+          "json",
+          "--show-stats=false",
+          "--print-issued-lines=false",
+          "--print-linter-name=true",
+          function()
+            return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":h")
+          end,
+        },
+      },
       sqlfluff = {
         args = {
           "lint",
@@ -19,10 +42,7 @@ return {
           return vim.fs.find({ ".sqlfluff" }, { path = ctx.filename, upward = true })[1]
         end,
       },
-      -- -- Example of using selene only when a selene.toml file is present
       selene = {
-        -- `condition` is another LazyVim extension that allows you to
-        -- dynamically enable/disable linters based on the context.
         condition = function(ctx)
           return vim.fs.find({ "selene.toml" }, { path = ctx.filename, upward = true })[1]
         end,

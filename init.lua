@@ -174,27 +174,27 @@ local servers = {
   protols = {},
   nixd = {},
   nil_ls = {},
-  golangci_lint_ls = {
-    init_options = {
-      command = {
-        "golangci-lint",
-        "run",
-        "--tests",
-        "--build-tags",
-        "integration,unit",
-        "--concurrency",
-        "16",
-        "--max-issues-per-linter",
-        "0",
-        "--max-same-issues",
-        "0",
-        "--out-format",
-        "json",
-      },
-    },
-  },
+  -- golangci_lint_ls = {
+  --   init_options = {
+  --     command = {
+  --       "golangci-lint",
+  --       "run",
+  --       "--tests",
+  --       "--build-tags",
+  --       "integration,unit",
+  --       "--concurrency",
+  --       "16",
+  --       "--max-issues-per-linter",
+  --       "0",
+  --       "--max-same-issues",
+  --       "0",
+  --       "--out-format",
+  --       "json",
+  --     },
+  --   },
+  -- },
   ts_ls = {},
-  -- bufls = {},
+  buf_ls = {},
   gopls = {
     -- keys = {
     -- Workaround for the lack of a DAP strategy in neotest-go: https://github.com/nvim-neotest/neotest-go/issues/12
@@ -276,7 +276,7 @@ local servers = {
   ruff = {
     init_options = {
       settings = {
-        lineLength = 88,
+        lineLength = 90,
         configurationPreference = "editorFirst",
         fixAll = false,
         organizeImports = false,
@@ -381,8 +381,8 @@ local client_capabilities = function()
     "force",
     vim.lsp.protocol.make_client_capabilities(),
     -- nvim-cmp supports additional completion capabilities, so broadcast that to servers.
-    -- require("blink.cmp").get_lsp_capabilities(vim.lsp.protocol.make_client_capabilities()),
-    require("cmp_nvim_lsp").default_capabilities(),
+    require("blink.cmp").get_lsp_capabilities(vim.lsp.protocol.make_client_capabilities()),
+    -- require("cmp_nvim_lsp").default_capabilities(),
     -- vim.lsp.protocol.make_client_capabilities(),
     {
       workspace = {
@@ -440,92 +440,92 @@ end
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
-local cmp = require("cmp")
-local luasnip = require("luasnip")
-
-require("luasnip.loaders.from_vscode").lazy_load()
-luasnip.config.setup({})
-
-cmp.setup({
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end,
-  },
-  mapping = cmp.mapping.preset.insert({
-    ["<C-n>"] = cmp.mapping.select_next_item(),
-    ["<C-p>"] = cmp.mapping.select_prev_item(),
-
-    ["<A-j>"] = cmp.mapping.select_next_item(),
-    ["<A-k>"] = cmp.mapping.select_prev_item(),
-
-    ["<C-d>"] = cmp.mapping.scroll_docs(-4),
-    ["<C-f>"] = cmp.mapping.scroll_docs(4),
-
-    ["<C-Space>"] = cmp.mapping.complete({}),
-    ["<Nul>"] = cmp.mapping.complete({}),
-
-    ["<CR>"] = cmp.mapping.confirm({
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
-    }),
-    ["<Tab>"] = cmp.mapping(function(fallback)
-      -- This little snippet will confirm with tab, and if no entry is selected, will confirm the first item
-      if cmp.visible() then
-        local entry = cmp.get_selected_entry()
-        if not entry then
-          cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
-          cmp.confirm()
-        else
-          cmp.confirm()
-        end
-      elseif luasnip.locally_jumpable(1) then
-        luasnip.jump(1)
-      else
-        fallback()
-      end
-    end, { "i", "s", "c" }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.locally_jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-  }),
-  sources = {
-    { name = "nvim_lsp",               group_index = 1,   keyword_length = 1 },
-    { name = "nvim_lsp_signature_help" },
-    { name = "luasnip",                keyword_length = 3 },
-    { name = "buffer",                 group_index = 2,   keyword_length = 3 },
-    { name = "path",                   max_item_count = 5 },
-  },
-})
-
-require("cmp").setup.cmdline("/", {
-  mapping = cmp.mapping.preset.cmdline(),
-  sources = cmp.config.sources({
-    { name = "nvim_lsp_document_symbol" },
-  }, {
-    { name = "buffer" },
-  }),
-})
-
-require("cmp").setup.cmdline(":", {
-  mapping = cmp.mapping.preset.cmdline(),
-  sources = cmp.config.sources({
-    { name = "path" },
-  }, {
-    {
-      name = "cmdline",
-      option = {
-        ignore_cmds = { "Man", "!" },
-      },
-    },
-  }),
-})
+-- local cmp = require("cmp")
+-- local luasnip = require("luasnip")
+--
+-- require("luasnip.loaders.from_vscode").lazy_load()
+-- luasnip.config.setup({})
+--
+-- cmp.setup({
+--   snippet = {
+--     expand = function(args)
+--       luasnip.lsp_expand(args.body)
+--     end,
+--   },
+--   mapping = cmp.mapping.preset.insert({
+--     ["<C-n>"] = cmp.mapping.select_next_item(),
+--     ["<C-p>"] = cmp.mapping.select_prev_item(),
+--
+--     ["<A-j>"] = cmp.mapping.select_next_item(),
+--     ["<A-k>"] = cmp.mapping.select_prev_item(),
+--
+--     ["<C-d>"] = cmp.mapping.scroll_docs(-4),
+--     ["<C-f>"] = cmp.mapping.scroll_docs(4),
+--
+--     ["<C-Space>"] = cmp.mapping.complete({}),
+--     ["<Nul>"] = cmp.mapping.complete({}),
+--
+--     ["<CR>"] = cmp.mapping.confirm({
+--       behavior = cmp.ConfirmBehavior.Replace,
+--       select = true,
+--     }),
+--     ["<Tab>"] = cmp.mapping(function(fallback)
+--       -- This little snippet will confirm with tab, and if no entry is selected, will confirm the first item
+--       if cmp.visible() then
+--         local entry = cmp.get_selected_entry()
+--         if not entry then
+--           cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+--           cmp.confirm()
+--         else
+--           cmp.confirm()
+--         end
+--       elseif luasnip.locally_jumpable(1) then
+--         luasnip.jump(1)
+--       else
+--         fallback()
+--       end
+--     end, { "i", "s", "c" }),
+--     ["<S-Tab>"] = cmp.mapping(function(fallback)
+--       if cmp.visible() then
+--         cmp.select_prev_item()
+--       elseif luasnip.locally_jumpable(-1) then
+--         luasnip.jump(-1)
+--       else
+--         fallback()
+--       end
+--     end, { "i", "s" }),
+--   }),
+--   sources = {
+--     { name = "nvim_lsp",               group_index = 1,   keyword_length = 1 },
+--     { name = "nvim_lsp_signature_help" },
+--     { name = "luasnip",                keyword_length = 3 },
+--     { name = "buffer",                 group_index = 2,   keyword_length = 3 },
+--     { name = "path",                   max_item_count = 5 },
+--   },
+-- })
+--
+-- require("cmp").setup.cmdline("/", {
+--   mapping = cmp.mapping.preset.cmdline(),
+--   sources = cmp.config.sources({
+--     { name = "nvim_lsp_document_symbol" },
+--   }, {
+--     { name = "buffer" },
+--   }),
+-- })
+--
+-- require("cmp").setup.cmdline(":", {
+--   mapping = cmp.mapping.preset.cmdline(),
+--   sources = cmp.config.sources({
+--     { name = "path" },
+--   }, {
+--     {
+--       name = "cmdline",
+--       option = {
+--         ignore_cmds = { "Man", "!" },
+--       },
+--     },
+--   }),
+-- })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
