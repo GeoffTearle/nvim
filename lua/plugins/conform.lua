@@ -13,6 +13,7 @@ return {
       javascript = { "prettierd", "prettier", stop_after_first = true },
       json = { "prettierd", "prettier", stop_after_first = true },
       lua = { "stylua" },
+      nix = { "alejandra" },
       proto = { "buf" },
       python = { "ruff_organise_imports", "ruff_fix", "ruff_format" },
       toml = { "taplo" },

@@ -8,6 +8,7 @@ return {
       lua = { "luacheck", "selene" },
       sql = { "sqlfluff" },
       go = { "golangcilint" },
+      nix = { "nix" },
     },
     ---@type table<string,table>
     linters = {
