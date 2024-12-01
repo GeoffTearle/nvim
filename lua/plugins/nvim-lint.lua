@@ -1,3 +1,5 @@
+---@module 'lazy.nvim'
+---@type LazyPlugin
 return {
   "mfussenegger/nvim-lint",
   event = { "BufWritePre", "BufReadPre" },
@@ -118,4 +120,5 @@ return {
       callback = M.debounce(100, M.lint),
     })
   end,
+  _ = {},
 }

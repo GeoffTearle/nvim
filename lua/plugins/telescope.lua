@@ -1,4 +1,6 @@
 -- Fuzzy Finder (files, lsp, etc)
+---@module 'lazy.nvim'
+---@type LazyPlugin
 return {
   "nvim-telescope/telescope.nvim",
   branch = "0.1.x",
@@ -17,4 +19,19 @@ return {
       end,
     },
   },
+  opts = {
+    defaults = {
+      mappings = {
+        i = {
+          ["<C-u>"] = false,
+          ["<C-d>"] = false,
+        },
+      },
+    },
+  },
+  config = function(_, opts)
+    require("telescope").setup(opts)
+    pcall(require("telescope").load_extension, "fzf")
+  end,
+  _ = {},
 }
