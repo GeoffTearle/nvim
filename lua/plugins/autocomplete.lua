@@ -12,11 +12,12 @@ if completion_plugin == "magazine.nvim" then
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
 
-      -- Adds LSP completion capabilities
-      "hrsh7th/cmp-nvim-lsp",
-      "hrsh7th/cmp-buffer",
+      { "iguanacucumber/mag-nvim-lsp", name = "cmp-nvim-lsp", opts = {} },
+      { "iguanacucumber/mag-nvim-lua", name = "cmp-nvim-lua" },
+      { "iguanacucumber/mag-buffer", name = "cmp-buffer" },
+      { "iguanacucumber/mag-cmdline", name = "cmp-cmdline" },
+
       "hrsh7th/cmp-path",
-      "hrsh7th/cmp-cmdline",
       "hrsh7th/cmp-nvim-lsp-document-symbol",
       "hrsh7th/cmp-nvim-lsp-signature-help",
 
@@ -26,6 +27,7 @@ if completion_plugin == "magazine.nvim" then
     config = function(_, opts)
       local cmp = require("cmp")
       local luasnip = require("luasnip")
+      local compare = require("cmp.config.compare")
 
       require("luasnip.loaders.from_vscode").lazy_load()
       luasnip.config.setup({})
@@ -82,9 +84,25 @@ if completion_plugin == "magazine.nvim" then
         sources = {
           { name = "nvim_lsp", group_index = 1, keyword_length = 1 },
           { name = "nvim_lsp_signature_help" },
-          { name = "luasnip", keyword_length = 3 },
+          { name = "luasnip", group_index = 1, priority = -1, keyword_length = 3 },
+          { name = "nvim_lua", group_index = 1, keyword_length = 1 },
           { name = "buffer", group_index = 2, keyword_length = 3 },
-          { name = "path", max_item_count = 5 },
+          -- { name = "path", max_item_count = 5 },
+        },
+        sorting = {
+          priority_weight = 2,
+          comparators = {
+            compare.offset,
+            compare.exact,
+            compare.scopes,
+            compare.score,
+            compare.recently_used,
+            compare.locality,
+            compare.kind,
+            compare.sort_text,
+            compare.length,
+            compare.order,
+          },
         },
       })
 

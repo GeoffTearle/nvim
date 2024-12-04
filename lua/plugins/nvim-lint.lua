@@ -6,6 +6,7 @@ return {
   opts = {
     -- Event to trigger linters
     events = { "BufWritePost", "BufReadPost", "InsertLeave" },
+    ---@type table<string,table>
     linters_by_ft = {
       lua = { "luacheck", "selene" },
       sql = { "sqlfluff" },
@@ -30,7 +31,7 @@ return {
           "json",
           "--show-stats=false",
           "--print-issued-lines=false",
-          "--print-linter-name=true",
+          "--print-linter-name=false",
           function()
             return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":h")
           end,
@@ -59,6 +60,7 @@ return {
     for name, linter in pairs(opts.linters) do
       if type(linter) == "table" and type(lint.linters[name]) == "table" then
         lint.linters[name] = vim.tbl_deep_extend("force", lint.linters[name], linter)
+
         if type(linter.prepend_args) == "table" then
           lint.linters[name].args = lint.linters[name].args or {}
           vim.list_extend(lint.linters[name].args, linter.prepend_args)
@@ -67,6 +69,14 @@ return {
         lint.linters[name] = linter
       end
     end
+
+    for _, linters in pairs(opts.linters_by_ft) do
+      for _, name in ipairs(linters) do
+        local ns = lint.get_namespace(name)
+        vim.diagnostic.config({ virtual_text = false, underline = true, float = false }, ns)
+      end
+    end
+
     lint.linters_by_ft = opts.linters_by_ft
 
     function M.debounce(ms, fn)
