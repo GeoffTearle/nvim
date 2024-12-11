@@ -71,33 +71,35 @@ local on_attach = function(client, bufnr)
   -- Lesser used LSP functionality
   nmap("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
 
+  local function buf_set_option(...)
+    vim.api.nvim_buf_set_option(bufnr, ...)
+  end
+  buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
+
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
     vim.lsp.buf.format()
   end, { desc = "Format current buffer with LSP" })
 
+  if client.server_capabilities.inlayHintProvider then
+    vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+  end
+
   if client.name == "gopls" then
     if not client.server_capabilities.semanticTokensProvider then
       local semantic = client.config.capabilities.textDocument.semanticTokens
-      if semantic == nil then
-        return
+      if semantic ~= nil then
+        client.server_capabilities.semanticTokensProvider = {
+          full = true,
+          legend = {
+            tokenTypes = semantic.tokenTypes,
+            tokenModifiers = semantic.tokenModifiers,
+          },
+          range = true,
+        }
       end
-
-      client.server_capabilities.semanticTokensProvider = {
-        full = true,
-        legend = {
-          tokenTypes = semantic.tokenTypes,
-          tokenModifiers = semantic.tokenModifiers,
-        },
-        range = true,
-      }
     end
   end
-
-  local function buf_set_option(...)
-    vim.api.nvim_buf_set_option(bufnr, ...)
-  end
-  buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
 end
 
 ---@module 'lazy.nvim'
