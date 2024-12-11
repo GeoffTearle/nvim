@@ -198,8 +198,24 @@ return {
         },
       },
       protols = {},
-      nixd = {},
-      nil_ls = {},
+      nixd = {
+        settings = {
+          nixd = {
+            nixpkgs = {
+              expr = "import <nixpkgs> { }",
+            },
+            options = {
+              nixos = {
+                expr = '(builtins.getFlake ("git+file://" + toString ./.)).nixosConfigurations.k-on.options',
+              },
+              home_manager = {
+                expr = '(builtins.getFlake ("git+file://" + toString ./.)).homeConfigurations."ruixi@k-on".options',
+              },
+            },
+          },
+        },
+      },
+      -- nil_ls = {},
       -- golangci_lint_ls = {
       --   init_options = {
       --     command = {

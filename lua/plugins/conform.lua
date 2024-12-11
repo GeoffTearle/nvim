@@ -15,7 +15,7 @@ return {
       lua = { "stylua" },
       nix = { "alejandra" },
       proto = { "buf" },
-      python = { "ruff_organise_imports", "ruff_fix", "ruff_format" },
+      python = { "ruff_organize_imports", "ruff_fix", "ruff_format" },
       toml = { "taplo" },
       typescript = { "prettierd", "prettier", stop_after_first = true },
       typescriptreact = { "prettierd", "prettier", stop_after_first = true },
