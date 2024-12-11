@@ -153,14 +153,14 @@ return {
   config = function()
     require("neodev").setup()
     local efmLanguages = {
-      typescript = {
-        require("efmls-configs.linters.eslint_d"),
-        -- require("efmls-configs.formatters.prettier_d"),
-      },
-      typescriptreact = {
-        require("efmls-configs.linters.eslint_d"),
-        -- require("efmls-configs.formatters.prettier_d"),
-      },
+      -- typescript = {
+      --   require("efmls-configs.linters.eslint_d"),
+      --   -- require("efmls-configs.formatters.prettier_d"),
+      -- },
+      -- typescriptreact = {
+      --   require("efmls-configs.linters.eslint_d"),
+      --   -- require("efmls-configs.formatters.prettier_d"),
+      -- },
       proto = {
         require("efmls-configs.linters.buf"),
         -- require("efmls-configs.formatters.buf"),
@@ -180,15 +180,10 @@ return {
       -- },
     }
 
-    -- Enable the following language servers
-    --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
-    --
-    --  Add any additional override configuration in the following tables. They will be passed to
-    --  the `settings` field of the server config. You must look up that documentation yourself.
-    --
-    --  If you want to override the default filetypes that your language server will attach to you can
-    --  define the property 'filetypes' to the map in question.
     local servers = {
+      protols = {},
+      buf_ls = {},
+      eslint = {},
       lua_ls = {
         settings = {
           Lua = {
@@ -197,8 +192,8 @@ return {
           },
         },
       },
-      protols = {},
       nixd = {
+        cmd = { "nixd", "--semantic-tokens=true", "--inlay-hints=true" },
         settings = {
           nixd = {
             nixpkgs = {
@@ -215,33 +210,24 @@ return {
           },
         },
       },
-      -- nil_ls = {},
-      -- golangci_lint_ls = {
-      --   init_options = {
-      --     command = {
-      --       "golangci-lint",
-      --       "run",
-      --       "--tests",
-      --       "--build-tags",
-      --       "integration,unit",
-      --       "--concurrency",
-      --       "16",
-      --       "--max-issues-per-linter",
-      --       "0",
-      --       "--max-same-issues",
-      --       "0",
-      --       "--out-format",
-      --       "json",
-      --     },
-      --   },
-      -- },
-      -- ts_ls = {},
-      buf_ls = {},
+      golangci_lint_ls = {
+        init_options = {
+          command = {
+            "golangci-lint",
+            "run",
+            "--tests",
+            "--build-tags",
+            "integration,unit",
+            "--max-issues-per-linter",
+            "0",
+            "--max-same-issues",
+            "0",
+            "--out-format",
+            "json",
+          },
+        },
+      },
       gopls = {
-        -- keys = {
-        -- Workaround for the lack of a DAP strategy in neotest-go: https://github.com/nvim-neotest/neotest-go/issues/12
-        -- { "<leader>td", "<cmd>lua require('dap-go').debug_test()<CR>", desc = "Debug Nearest (Go)" },
-        -- },
         flags = { debounce_text_changes = 200 },
         single_file_support = false,
         settings = {
