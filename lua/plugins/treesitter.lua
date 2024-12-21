@@ -1,5 +1,5 @@
 if false then
-  return {};
+  return {}
 end
 
 return {
@@ -21,10 +21,13 @@ return {
       -- See `:help nvim-treesitter`
       require("nvim-treesitter.install").prefer_git = true
       require("nvim-treesitter.configs").setup({
-        -- Add languages to be installed here that you want installed for treesitter
-
+        ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "typescript", "html" },
         highlight = { enable = true },
         indent = { enable = true },
+
+        autotag = {
+          enable = true,
+        },
       })
 
       vim.filetype.add({
@@ -45,5 +48,9 @@ return {
         },
       })
     end,
+  },
+  {
+    "windwp/nvim-ts-autotag",
+    lazy = false,
   },
 }
