@@ -129,6 +129,16 @@ return {
         vim.diagnostic.config({ virtual_text = false, underline = true, float = false })
       end,
     },
+    {
+      "luckasRanarison/tailwind-tools.nvim",
+      name = "tailwind-tools",
+      build = ":UpdateRemotePlugins",
+      dependencies = {
+        "nvim-treesitter/nvim-treesitter",
+        "nvim-telescope/telescope.nvim", -- optional
+      },
+      opts = {}, -- your configuration
+    },
     -- {
     --   "rachartier/tiny-inline-diagnostic.nvim",
     --   event = "VeryLazy", -- Or `LspAttach`
