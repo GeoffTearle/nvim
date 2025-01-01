@@ -1,5 +1,3 @@
----@module 'lazy.nvim'
----@type LazyPlugin
 return {
   "mfussenegger/nvim-lint",
   event = { "BufWritePre", "BufReadPre" },
@@ -10,7 +8,7 @@ return {
     linters_by_ft = {
       lua = { "luacheck", "selene" },
       sql = { "sqlfluff" },
-      go = { "golangcilint" },
+      -- go = { "golangcilint" },
       nix = { "nix" },
     },
     ---@type table<string,table>

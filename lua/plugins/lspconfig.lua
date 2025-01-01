@@ -76,6 +76,10 @@ local on_attach = function(client, bufnr)
   end
   buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
 
+  if bufnr ~= nil and client ~= nil then
+    -- require("workspace-diagnostics").populate_workspace_diagnostics(client, bufnr)
+  end
+
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
     vim.lsp.buf.format()
@@ -138,6 +142,9 @@ return {
         "nvim-telescope/telescope.nvim", -- optional
       },
       opts = {}, -- your configuration
+    },
+    {
+      "artemave/workspace-diagnostics.nvim",
     },
     -- {
     --   "rachartier/tiny-inline-diagnostic.nvim",
@@ -265,23 +272,25 @@ return {
           },
         },
       },
-      -- golangci_lint_ls = {
-      --   init_options = {
-      --     command = {
-      --       "golangci-lint",
-      --       "run",
-      --       "--tests",
-      --       "--build-tags",
-      --       "integration,unit",
-      --       "--max-issues-per-linter",
-      --       "0",
-      --       "--max-same-issues",
-      --       "0",
-      --       "--out-format",
-      --       "json",
-      --     },
-      --   },
-      -- },
+      golangci_lint_ls = {
+        init_options = {
+          command = {
+            "golangci-lint",
+            "run",
+            "--tests",
+            "--build-tags",
+            "integration,unit",
+            "--concurrency",
+            "16",
+            "--max-issues-per-linter",
+            "0",
+            "--max-same-issues",
+            "0",
+            "--out-format",
+            "json",
+          },
+        },
+      },
       gopls = {
         flags = { debounce_text_changes = 200 },
         single_file_support = false,
@@ -445,7 +454,7 @@ return {
         -- vim.lsp.protocol.make_client_capabilities(),
         {
           workspace = {
-            didChangeWatchedFiles = { dynamicRegistration = false },
+            didChangeWatchedFiles = { dynamicRegistration = true },
           },
         }
       )
