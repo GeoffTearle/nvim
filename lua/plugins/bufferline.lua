@@ -1,3 +1,5 @@
+local icons = require("config.icons").diagnostics
+
 return {
   {
     "akinsho/bufferline.nvim",
@@ -5,12 +7,39 @@ return {
     dependencies = "nvim-tree/nvim-web-devicons",
     opts = {
       options = {
-        -- stylua: ignore
-        close_command = function(n) require("mini.bufremove").delete(n, false) end,
-        -- stylua: ignore
-        right_mouse_command = function(n) require("mini.bufremove").delete(n, false) end,
+        close_command = function(n)
+          require("mini.bufremove").delete(n, false)
+        end,
+        right_mouse_command = function(n)
+          require("mini.bufremove").delete(n, false)
+        end,
+        diagnostics = "nvim_lsp",
+        diagnostics_indicator = function(count, level, diagnostics_dict, context)
+          local s = ""
+          for e, n in pairs(diagnostics_dict) do
+            local sym = icons.Unknown
+            if e == "error" then
+              sym = icons.Error
+            end
+            if e == "warning" then
+              sym = icons.Warn
+            end
+            if e == "info" then
+              sym = icons.Info
+            end
+            if e == "hint" then
+              sym = icons.Hint
+            end
+            s = s .. n .. sym
+          end
+          return s
+        end,
       },
     },
+    config = function(_, opts)
+      vim.opt.termguicolors = true
+      require("bufferline").setup(opts)
+    end,
   },
   -- buffer remove
   {
