@@ -76,10 +76,6 @@ local on_attach = function(client, bufnr)
   end
   buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
 
-  if bufnr ~= nil and client ~= nil then
-    -- require("workspace-diagnostics").populate_workspace_diagnostics(client, bufnr)
-  end
-
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
     vim.lsp.buf.format()
@@ -88,7 +84,9 @@ local on_attach = function(client, bufnr)
   if client.server_capabilities.inlayHintProvider then
     vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
   end
+end
 
+local on_init = function(client, _)
   if client.name == "gopls" then
     if not client.server_capabilities.semanticTokensProvider then
       local semantic = client.config.capabilities.textDocument.semanticTokens
@@ -116,6 +114,66 @@ return {
     -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
     -- { "j-hui/fidget.nvim", opts = {} },
     {
+      "Wansmer/symbol-usage.nvim",
+      event = "LspAttach",
+      version = "*",
+      config = function()
+        local SymbolKind = vim.lsp.protocol.SymbolKind
+        ---@type UserOpts
+        require("symbol-usage").setup({
+          ---@type table<string, any> `nvim_set_hl`-like options for highlight virtual text
+          hl = { link = "Comment" },
+          ---@type lsp.SymbolKind[] Symbol kinds what need to be count (see `lsp.SymbolKind`)
+          kinds = { SymbolKind.Function, SymbolKind.Method },
+          ---Additional filter for kinds. Recommended use in the filetypes override table.
+          ---fiterKind: function(data: { symbol:table, parent:table, bufnr:integer }): boolean
+          ---`symbol` and `parent` is an item from `textDocument/documentSymbol` request
+          ---See: #filter-kinds
+          ---@type table<lsp.SymbolKind, filterKind[]>
+          kinds_filter = {},
+          ---@type 'above'|'end_of_line'|'textwidth'|'signcolumn' `above` by default
+          vt_position = "above",
+          vt_priority = nil, ---@type integer Virtual text priority (see `nvim_buf_set_extmark`)
+          ---Text to display when request is pending. If `false`, extmark will not be
+          ---created until the request is finished. Recommended to use with `above`
+          ---vt_position to avoid "jumping lines".
+          ---@type string|table|false
+          request_pending_text = "loading...",
+          ---The function can return a string to which the highlighting group from `opts.hl` is applied.
+          ---Alternatively, it can return a table of tuples of the form `{ { text, hl_group }, ... }`` - in this case the specified groups will be applied.
+          ---If `vt_position` is 'signcolumn', then only a 1-2 length string or a `{{ icon, hl_group }}` table is expected.
+          ---See `#format-text-examples`
+          ---@type function(symbol: Symbol): string|table Symbol{ definition = integer|nil, implementation = integer|nil, references = integer|nil, stacked_count = integer, stacked_symbols = table<SymbolId, Symbol> }
+          -- text_format = function(symbol) end,
+          references = { enabled = true, include_declaration = false },
+          definition = { enabled = true },
+          implementation = { enabled = true },
+          ---@type { lsp?: string[], filetypes?: string[], cond?: function[] } Disables `symbol-usage.nvim' for specific LSPs, filetypes, or on custom conditions.
+          ---The function in the `cond` list takes an argument `bufnr` and returns a boolean. If it returns true, `symbol-usage` will not run in that buffer.
+          disable = { lsp = {}, filetypes = {}, cond = {} },
+          ---@type UserOpts[] See default overridings in `lua/symbol-usage/langs.lua`
+          -- filetypes = {},
+          ---@type 'start'|'end' At which position of `symbol.selectionRange` the request to the lsp server should start. Default is `end` (try changing it to `start` if the symbol counting is not correct).
+          symbol_request_pos = "end", -- Recommended redefine only in `filetypes` override table
+          ---@type LoggerConfig
+          log = { enabled = false },
+        })
+      end,
+    },
+    -- {
+    --   "VidocqH/lsp-lens.nvim",
+    --   event = "LspAttach",
+    --   version = "*",
+    --   opts = {
+    --     sections = { -- Enable / Disable specific request, formatter example looks 'Format Requests'
+    --       definition = true,
+    --       references = true,
+    --       implements = true,
+    --       git_authors = false,
+    --     },
+    --   },
+    -- },
+    {
       "creativenull/efmls-configs-nvim",
       version = "v1.x.x", -- version is optional, but recommended
     },
@@ -124,7 +182,22 @@ return {
     {
       "pmizio/typescript-tools.nvim",
       dependencies = { "nvim-lua/plenary.nvim" },
-      opts = { on_attach = on_attach },
+      opts = {
+        on_attach = on_attach,
+        settings = {
+          tsserver_file_preferences = {
+            includeCompletionsForModuleExports = true,
+            includeInlayParameterNameHints = "all",
+            includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+            includeInlayFunctionParameterTypeHints = true,
+            includeInlayVariableTypeHints = true,
+            includeInlayVariableTypeHintsWhenTypeMatchesName = false,
+            includeInlayPropertyDeclarationTypeHints = true,
+            includeInlayFunctionLikeReturnTypeHints = true,
+            includeInlayEnumMemberValueHints = true,
+          },
+        },
+      },
     },
     -- {
     --   "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
@@ -159,14 +232,14 @@ return {
     -- },
     {
       "rachartier/tiny-inline-diagnostic.nvim",
-      event = "VeryLazy", -- Or `LspAttach`
+      event = "LspAttach",
       priority = 1000, -- needs to be loaded in first
       opts = {
         options = {
           -- Show the source of the diagnostic.
           show_source = true,
           -- Use your defined signs in the diagnostic config table.
-          use_icons_from_diagnostic = false,
+          use_icons_from_diagnostic = true,
           -- Add messages to the diagnostic when multilines is enabled
           add_messages = true,
           -- Throttle the update of the diagnostic when moving cursor, in milliseconds.
@@ -218,7 +291,6 @@ return {
       },
       config = function(_, opts)
         require("tiny-inline-diagnostic").setup(opts)
-        vim.diagnostic.config({ virtual_text = false, underline = true, float = false })
       end,
       _ = {},
     },
@@ -262,6 +334,7 @@ return {
           Lua = {
             workspace = { checkThirdParty = false },
             telemetry = { enable = false },
+            hint = { enable = true },
           },
         },
       },
@@ -477,6 +550,7 @@ return {
       require("lspconfig")[server_name].setup(vim.tbl_extend("force", servers[server_name] or {}, {
         capabilities = capabilities,
         on_attach = on_attach,
+        on_init = on_init,
       }))
     end
   end,

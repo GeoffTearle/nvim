@@ -79,6 +79,21 @@ function optionsManager.apply()
   vim.g.markdown_recommended_style = 0
   vim.o.pumblend = 20
 
+  vim.diagnostic.config({
+    severity_sort = true,
+    signs = {
+      text = {
+        [vim.diagnostic.severity.ERROR] = icons.Error,
+        [vim.diagnostic.severity.WARN] = icons.Warn,
+        [vim.diagnostic.severity.INFO] = icons.Info,
+        [vim.diagnostic.severity.HINT] = icons.Hint,
+      },
+    },
+    virtual_text = false,
+    underline = true,
+    float = false,
+  })
+
   vim.fn.sign_define("DiagnosticSignError", { text = icons.Error, texthl = "DiagnosticSignError" })
   vim.fn.sign_define("DiagnosticSignWarn", { text = icons.Warn, texthl = "DiagnosticSignWarn" })
   vim.fn.sign_define("DiagnosticSignInfo", { text = icons.Info, texthl = "DiagnosticSignInfo" })

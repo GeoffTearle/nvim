@@ -14,25 +14,33 @@ return {
           require("mini.bufremove").delete(n, false)
         end,
         diagnostics = "nvim_lsp",
-        diagnostics_indicator = function(count, level, diagnostics_dict, context)
-          local s = ""
+        diagnostics_indicator = function(_, _, diagnostics_dict, _)
+          local error = ""
+          local warning = ""
+          local info = ""
+          local hint = ""
+          local unknown = ""
           for e, n in pairs(diagnostics_dict) do
-            local sym = icons.Unknown
             if e == "error" then
-              sym = icons.Error
+              error = n .. icons.Error
+              goto continue
             end
             if e == "warning" then
-              sym = icons.Warn
+              warning = n .. icons.Warn
+              goto continue
             end
             if e == "info" then
-              sym = icons.Info
+              info = n .. icons.Info
+              goto continue
             end
             if e == "hint" then
-              sym = icons.Hint
+              hint = n .. icons.Hint
+              goto continue
             end
-            s = s .. n .. sym
+              unknown = n .. icons.Unknown
+              ::continue::
           end
-          return s
+          return error .. warning .. info .. hint .. unknown
         end,
       },
     },
