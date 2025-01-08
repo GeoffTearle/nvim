@@ -1,40 +1,4 @@
--- lspconfig.lua
--- NOTE: This is where your plugins related to LSP can be installed.
---   callback = function(ev)
---     local client = vim.lsp.get_client_by_id(ev.data.client_id)
---     if client == nil then
---       return
---     end
---
---     if client.name == "gopls" then
---       if not client.server_capabilities.semanticTokensProvider then
---         local semantic = client.config.capabilities.textDocument.semanticTokens
---         if semantic == nil then
---           return
---         end
---
---         client.server_capabilities.semanticTokensProvider = {
---           full = true,
---           legend = {
---             tokenTypes = semantic.tokenTypes,
---             tokenModifiers = semantic.tokenModifiers,
---           },
---           range = true,
---         }
---       end
---     end
---   end,
--- })
--- [[ Configure LSP ]]
---  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(client, bufnr)
-  -- NOTE: Remember that lua is a real programming language, and as such it is possible
-  -- to define small helper and utility functions so you don't have to repeat yourself
-  -- many times.
-  --
-  -- In this case, we create a function that lets us more easily define mappings specific
-  -- for LSP related items. It sets the mode, buffer and description for us each time.
-
   local map = function(mode, keys, func, desc)
     if desc then
       desc = "LSP: " .. desc
@@ -105,60 +69,29 @@ local on_init = function(client, _)
 end
 
 return {
-  -- LSP Configuration & Plugins
   "neovim/nvim-lspconfig",
-  -- lazy = false,
   event = { "BufWritePre", "BufReadPre" },
   dependencies = {
-    -- Useful status updates for LSP
-    -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-    -- { "j-hui/fidget.nvim", opts = {} },
     {
       "Wansmer/symbol-usage.nvim",
       event = "LspAttach",
       version = "*",
-      config = function()
-        local SymbolKind = vim.lsp.protocol.SymbolKind
-        ---@type UserOpts
-        require("symbol-usage").setup({
-          ---@type table<string, any> `nvim_set_hl`-like options for highlight virtual text
-          hl = { link = "Comment" },
-          ---@type lsp.SymbolKind[] Symbol kinds what need to be count (see `lsp.SymbolKind`)
-          kinds = { SymbolKind.Function, SymbolKind.Method },
-          ---Additional filter for kinds. Recommended use in the filetypes override table.
-          ---fiterKind: function(data: { symbol:table, parent:table, bufnr:integer }): boolean
-          ---`symbol` and `parent` is an item from `textDocument/documentSymbol` request
-          ---See: #filter-kinds
-          ---@type table<lsp.SymbolKind, filterKind[]>
-          kinds_filter = {},
-          ---@type 'above'|'end_of_line'|'textwidth'|'signcolumn' `above` by default
-          vt_position = "above",
-          vt_priority = nil, ---@type integer Virtual text priority (see `nvim_buf_set_extmark`)
-          ---Text to display when request is pending. If `false`, extmark will not be
-          ---created until the request is finished. Recommended to use with `above`
-          ---vt_position to avoid "jumping lines".
-          ---@type string|table|false
-          request_pending_text = "loading...",
-          ---The function can return a string to which the highlighting group from `opts.hl` is applied.
-          ---Alternatively, it can return a table of tuples of the form `{ { text, hl_group }, ... }`` - in this case the specified groups will be applied.
-          ---If `vt_position` is 'signcolumn', then only a 1-2 length string or a `{{ icon, hl_group }}` table is expected.
-          ---See `#format-text-examples`
-          ---@type function(symbol: Symbol): string|table Symbol{ definition = integer|nil, implementation = integer|nil, references = integer|nil, stacked_count = integer, stacked_symbols = table<SymbolId, Symbol> }
-          -- text_format = function(symbol) end,
-          references = { enabled = true, include_declaration = false },
-          definition = { enabled = true },
-          implementation = { enabled = true },
-          ---@type { lsp?: string[], filetypes?: string[], cond?: function[] } Disables `symbol-usage.nvim' for specific LSPs, filetypes, or on custom conditions.
-          ---The function in the `cond` list takes an argument `bufnr` and returns a boolean. If it returns true, `symbol-usage` will not run in that buffer.
-          disable = { lsp = {}, filetypes = {}, cond = {} },
-          ---@type UserOpts[] See default overridings in `lua/symbol-usage/langs.lua`
-          -- filetypes = {},
-          ---@type 'start'|'end' At which position of `symbol.selectionRange` the request to the lsp server should start. Default is `end` (try changing it to `start` if the symbol counting is not correct).
-          symbol_request_pos = "end", -- Recommended redefine only in `filetypes` override table
-          ---@type LoggerConfig
-          log = { enabled = false },
-        })
-      end,
+      ---@type UserOpts
+      opts = {
+        references = { enabled = true, include_declaration = false },
+        definition = { enabled = true },
+        implementation = { enabled = true },
+        disable = {
+          lsp = {
+            "golangci_lint_ls",
+            "ruff",
+            "eslint",
+            "efm",
+          },
+        },
+        filetypes = {},
+        log = { enabled = false },
+      },
     },
     -- {
     --   "VidocqH/lsp-lens.nvim",
@@ -177,7 +110,6 @@ return {
       "creativenull/efmls-configs-nvim",
       version = "v1.x.x", -- version is optional, but recommended
     },
-    -- Additional lua configuration, makes nvim stuff amazing!
     "folke/neodev.nvim",
     {
       "pmizio/typescript-tools.nvim",
@@ -199,24 +131,6 @@ return {
         },
       },
     },
-    -- {
-    --   "https://git.sr.ht/~whynothugo/lsp_lines.nvim",
-    --   config = function()
-    --     require("lsp_lines").setup()
-    --     vim.diagnostic.config({ virtual_text = false, underline = true, float = false })
-    --   end,
-    -- },
-    -- {
-    --   "sontungexpt/better-diagnostic-virtual-text",
-    --   event = "LspAttach",
-    --   priority = 1000, -- needs to be loaded in first
-    --   config = function()
-    --     require("better-diagnostic-virtual-text").setup({
-    --       inline = false,
-    --     })
-    --     vim.diagnostic.config({ virtual_text = false, underline = true, float = false })
-    --   end,
-    -- },
     {
       "luckasRanarison/tailwind-tools.nvim",
       name = "tailwind-tools",
@@ -227,92 +141,37 @@ return {
       },
       opts = {}, -- your configuration
     },
-    -- {
-    --   "artemave/workspace-diagnostics.nvim",
-    -- },
     {
       "rachartier/tiny-inline-diagnostic.nvim",
-      event = "LspAttach",
+      event = { "BufWritePre", "BufReadPre" },
+      -- event = "VeryLazy",
       priority = 1000, -- needs to be loaded in first
       opts = {
         options = {
-          -- Show the source of the diagnostic.
           show_source = true,
-          -- Use your defined signs in the diagnostic config table.
           use_icons_from_diagnostic = true,
-          -- Add messages to the diagnostic when multilines is enabled
           add_messages = true,
-          -- Throttle the update of the diagnostic when moving cursor, in milliseconds.
-          -- You can increase it if you have performance issues.
-          -- Or set it to 0 to have better visuals.
           throttle = 0,
-          -- The minimum length of the message, otherwise it will be on a new line.
-          softwrap = 30,
-          -- If multiple diagnostics are under the cursor, display all of them.
           multiple_diag_under_cursor = true,
-          -- Enable diagnostic message on all lines.
-          multilines = true,
-          -- Show all diagnostics on the cursor line.
+          multilines = {
+            enabled = true,
+            always_show = true,
+          },
           show_all_diags_on_cursorline = true,
-          -- Enable diagnostics on Insert mode. You should also se the `throttle` option to 0, as some artefacts may appear.
           enable_on_insert = true,
-          overflow = {
-            -- Manage the overflow of the message.
-            --    - wrap: when the message is too long, it is then displayed on multiple lines.
-            --    - none: the message will not be truncated.
-            --    - oneline: message will be displayed entirely on one line.
-            mode = "wrap",
-          },
-          -- Format the diagnostic message.
-          -- Example:
-          -- format = function(diagnostic)
-          --     return diagnostic.message .. " [" .. diagnostic.source .. "]"
-          -- end,
-          format = nil,
-          --- Enable it if you want to always have message with `after` characters length.
-          break_line = {
-            enabled = false,
-            after = 30,
-          },
-          virt_texts = {
-            priority = 2048,
-          },
-          -- Filter by severity.
-          severity = {
-            vim.diagnostic.severity.ERROR,
-            vim.diagnostic.severity.WARN,
-            vim.diagnostic.severity.INFO,
-            vim.diagnostic.severity.HINT,
-          },
-          -- Overwrite events to attach to a buffer. You should not change it, but if the plugin
-          -- does not works in your configuration, you may try to tweak it.
-          overwrite_events = nil,
+          overwrite_events = { "DiagnosticChanged" }, -- to support files where we have a linter but no lsp
         },
       },
-      config = function(_, opts)
-        require("tiny-inline-diagnostic").setup(opts)
-      end,
-      _ = {},
     },
   },
   config = function()
     require("neodev").setup()
     local efmLanguages = {
-      -- typescript = {
-      --   require("efmls-configs.linters.eslint_d"),
-      --   -- require("efmls-configs.formatters.prettier_d"),
-      -- },
-      -- typescriptreact = {
-      --   require("efmls-configs.linters.eslint_d"),
-      --   -- require("efmls-configs.formatters.prettier_d"),
-      -- },
       proto = {
         require("efmls-configs.linters.buf"),
-        -- require("efmls-configs.formatters.buf"),
       },
       json = {
         require("efmls-configs.linters.jq"),
-        -- require("efmls-configs.formatters.prettier_d"),
       },
       gitcommit = {
         require("efmls-configs.linters.gitlint"),
@@ -320,9 +179,6 @@ return {
       docker = {
         require("efmls-configs.linters.hadolint"),
       },
-      -- sql = {
-      --   require("efmls-configs.linters.sqlfluff"),
-      -- },
     }
 
     local servers = {
@@ -334,7 +190,10 @@ return {
           Lua = {
             workspace = { checkThirdParty = false },
             telemetry = { enable = false },
-            hint = { enable = true },
+            hint = { enable = true, arrayIndex = "Disable" },
+            codeLens = {
+              enable = true,
+            },
           },
         },
       },
@@ -380,15 +239,19 @@ return {
         single_file_support = false,
         settings = {
           gopls = {
-            usePlaceholders = true,
-            gofumpt = true,
             analyses = {
+              ST1003 = true,
+              fieldalignment = true,
+              fillreturns = true,
               nilness = true,
-              unusedparams = true,
-              unusedwrite = true,
-              unusedvariable = true,
-              useany = true,
+              nonewvars = true,
               shadow = true,
+              undeclaredname = true,
+              unreachable = true,
+              unusedparams = true,
+              unusedvariable = true,
+              unusedwrite = true,
+              useany = true,
             },
             codelenses = {
               gc_details = true,
@@ -400,12 +263,17 @@ return {
               upgrade_dependency = true,
               vendor = true,
             },
-            experimentalPostfixCompletions = true,
             completeUnimported = true,
-            staticcheck = true,
+            diagnosticsDelay = "500ms",
             directoryFilters = { "-.git", "-node_modules" },
+            experimentalPostfixCompletions = true,
+            gofumpt = true,
+            matcher = "Fuzzy",
             semanticTokens = true,
+            staticcheck = true,
+            symbolMatcher = "fuzzy",
             symbolScope = "all",
+            usePlaceholders = true,
             hints = {
               assignVariableTypes = true,
               compositeLiteralFields = true,
