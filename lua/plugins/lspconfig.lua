@@ -406,7 +406,7 @@ return {
         -- vim.lsp.protocol.make_client_capabilities(),
         {
           workspace = {
-            didChangeWatchedFiles = { dynamicRegistration = true },
+            didChangeWatchedFiles = { dynamicRegistration = false },
           },
         }
       )
