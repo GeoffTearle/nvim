@@ -1,8 +1,6 @@
 local completion_plugin = "magazine.nvim"
 
 if completion_plugin == "magazine.nvim" then
-  ---@module 'lazy.nvim'
-  ---@type LazyPlugin
   return {
     "iguanacucumber/magazine.nvim",
     name = "nvim-cmp", -- Otherwise highlighting gets messed up
@@ -12,15 +10,22 @@ if completion_plugin == "magazine.nvim" then
       "L3MON4D3/LuaSnip",
       "saadparwaiz1/cmp_luasnip",
 
-      { "iguanacucumber/mag-nvim-lsp", name = "cmp-nvim-lsp", opts = {} },
-      { "iguanacucumber/mag-nvim-lua", name = "cmp-nvim-lua" },
-      { "iguanacucumber/mag-buffer", name = "cmp-buffer" },
-      { "iguanacucumber/mag-cmdline", name = "cmp-cmdline" },
+      { "iguanacucumber/mag-nvim-lsp", name = "cmp-nvim-lsp", version = false, opts = {} },
+      { "iguanacucumber/mag-nvim-lua", name = "cmp-nvim-lua", version = false },
+      { "iguanacucumber/mag-buffer", name = "cmp-buffer", version = false },
+      { "iguanacucumber/mag-cmdline", name = "cmp-cmdline", commit = "bc85ff5323f4d314f92556bea15ebaac94d58054" },
 
       "hrsh7th/cmp-path",
       "hrsh7th/cmp-nvim-lsp-document-symbol",
       "hrsh7th/cmp-nvim-lsp-signature-help",
-
+      {
+        "MattiasMTS/cmp-dbee",
+        dependencies = {
+          { "kndndrj/nvim-dbee" },
+        },
+        ft = "sql", -- optional but good to have
+        opts = {}, -- needed
+      },
       -- Adds a number of user-friendly snippets
       "rafamadriz/friendly-snippets",
       {
@@ -72,7 +77,7 @@ if completion_plugin == "magazine.nvim" then
             if cmp.visible() then
               local entry = cmp.get_selected_entry()
               if not entry then
-                cmp.select_next_item({ behavior = cmp.SelectBehavior.Select })
+                cmp.select_next_item({ behavior = cmp.SelectBehavior.Replace })
                 cmp.confirm()
               else
                 cmp.confirm()
@@ -96,9 +101,10 @@ if completion_plugin == "magazine.nvim" then
         sources = {
           { name = "nvim_lsp", group_index = 1, keyword_length = 1 },
           { name = "nvim_lsp_signature_help" },
-          { name = "luasnip", group_index = 1, priority = -1, keyword_length = 3 },
+          { name = "luasnip", group_index = 1, priority = -1, keyword_length = 1 },
           { name = "nvim_lua", group_index = 1, keyword_length = 1 },
-          { name = "buffer", group_index = 2, keyword_length = 3 },
+          { name = "cmp-dbee", group_index = 1, keyword_length = 1 },
+          { name = "buffer", group_index = 1, keyword_length = 1 },
           -- { name = "path", max_item_count = 5 },
         },
         sorting = {
@@ -118,7 +124,7 @@ if completion_plugin == "magazine.nvim" then
         },
       })
 
-      require("cmp").setup.cmdline("/", {
+      require("cmp").setup.cmdline({ "/", "?" }, {
         mapping = cmp.mapping.preset.cmdline(),
         sources = cmp.config.sources({
           { name = "nvim_lsp_document_symbol" },
@@ -134,11 +140,12 @@ if completion_plugin == "magazine.nvim" then
         }, {
           {
             name = "cmdline",
-            option = {
-              ignore_cmds = { "Man", "!" },
-            },
+            -- option = {
+            --   ignore_cmds = { "Man", "!" },
+            -- },
           },
         }),
+        matching = { disallow_symbol_nonprefix_matching = false },
       })
     end,
     _ = {},

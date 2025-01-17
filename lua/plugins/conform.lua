@@ -18,11 +18,22 @@ return {
       python = { "ruff_organize_imports", "ruff_fix", "ruff_format" },
       toml = { "taplo" },
       typescript = { "prettierd", "prettier", stop_after_first = true },
-      typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+      typescriptreact = { "prettierd", "prettier", stop_after_first = true, lsp_format = "last" },
       sql = { "sqlfluff_format", "sqlfluff_fix" },
     },
     -- Set up format-on-save
-    format_on_save = { timeout_ms = 5000 },
+    -- format_on_save = {
+    --   -- I recommend these options. See :help conform.format for details.
+    --   lsp_format = "fallback",
+    --   timeout_ms = 500,
+    -- },
+    -- If this is set, Conform will run the formatter asynchronously after save.
+    -- It will pass the table to conform.format().
+    -- This can also be a function that returns the table.
+    format_after_save = {
+      async = true,
+      lsp_format = "never",
+    },
     -- Customize formatters
     formatters = {
       golines = {
