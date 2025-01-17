@@ -126,7 +126,7 @@ return {
       version = "*",
       ---@type UserOpts
       opts = {
-        references = { enabled = true, include_declaration = true },
+        references = { enabled = true },
         definition = { enabled = true },
         implementation = { enabled = true },
         disable = {
