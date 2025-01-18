@@ -6,6 +6,8 @@ return {
   {
     -- Highlight, edit, and navigate code
     "nvim-treesitter/nvim-treesitter",
+    dir = require("nix-treesitter-grammers").path,
+    dev = true,
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
       {
@@ -19,9 +21,8 @@ return {
     config = function()
       -- [[ Configure Treesitter ]]
       -- See `:help nvim-treesitter`
-      require("nvim-treesitter.install").prefer_git = true
       require("nvim-treesitter.configs").setup({
-        ensure_installed = "all",
+        -- ensure_installed = "all",
         highlight = { enable = true },
         indent = { enable = true },
 

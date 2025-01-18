@@ -1,3 +1,5 @@
+require("config.nix")
+
 local optsMgr = require("config.options")
 optsMgr.apply()
 
@@ -10,11 +12,6 @@ keybindMgr.general()
 
 -- Move to setup
 keybindMgr.telescope()
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
-
--- Setup neovim lua configuration
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
