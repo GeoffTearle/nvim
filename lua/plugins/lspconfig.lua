@@ -40,17 +40,19 @@ local on_attach = function(client, bufnr)
   end
   buf_set_option("omnifunc", "v:lua.vim.lsp.omnifunc")
 
-  -- Create a command `:Format` local to the LSP buffer
-  vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
-    vim.lsp.buf.format()
-  end, { desc = "Format current buffer with LSP" })
-
   if client.server_capabilities.inlayHintProvider then
     vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
   end
+
+  if client.name == "sqls" then
+    require("sqls").on_attach(client, bufnr)
+  end
 end
 
+---@param client vim.lsp.Client
 local on_init = function(client, _)
+  client.server_capabilities.documentFormattingProvider = nil
+
   if client.name == "gopls" then
     if not client.server_capabilities.semanticTokensProvider then
       local semantic = client.config.capabilities.textDocument.semanticTokens
@@ -66,19 +68,65 @@ local on_init = function(client, _)
       end
     end
   end
+
+  if client.name == "sqls" then
+    client.server_capabilities.documentFormattingProvider = nil
+  end
+
+  if client.name == "golangci_lint_ls" then
+    client.server_capabilities.documentFormattingProvider = nil
+    client.server_capabilities.signatureHelpProvider = nil
+    client.server_capabilities.declarationProvider = nil
+    client.server_capabilities.definitionProvider = nil
+    client.server_capabilities.implementationProvider = nil
+    client.server_capabilities.referencesProvider = nil
+    client.server_capabilities.codeLensProvider = nil
+    client.server_capabilities.documentLinkProvider = nil
+  end
+
+  if client.name == "tailwindcss" then
+    --   {
+    --   codeActionProvider = true,
+    --   colorProvider = true,
+    --   completionProvider = {
+    --     resolveProvider = true,
+    --     triggerCharacters = { '"', "'", "`", " ", ".", "(", "[", "]", "!", "/", "-", ":" }
+    --   },
+    --   documentLinkProvider = vim.empty_dict(),
+    --   hoverProvider = true,
+    --   textDocumentSync = {
+    --     change = 1,
+    --     openClose = true,
+    --     save = {
+    --       includeText = false
+    --     },
+    --     willSave = false,
+    --     willSaveWaitUntil = false
+    --   }
+    -- }
+    client.server_capabilities.signatureHelpProvider = nil
+    client.server_capabilities.declarationProvider = nil
+    client.server_capabilities.definitionProvider = nil
+    client.server_capabilities.implementationProvider = nil
+    client.server_capabilities.diagnosticProvider = nil
+    client.server_capabilities.referencesProvider = nil
+    client.server_capabilities.codeLensProvider = nil
+    client.server_capabilities.documentLinkProvider = nil
+  end
 end
 
 return {
   "neovim/nvim-lspconfig",
   event = { "BufWritePre", "BufReadPre" },
   dependencies = {
+    "nanotee/sqls.nvim",
     {
       "Wansmer/symbol-usage.nvim",
       event = "LspAttach",
       version = "*",
       ---@type UserOpts
       opts = {
-        references = { enabled = true, include_declaration = false },
+        references = { enabled = true },
         definition = { enabled = true },
         implementation = { enabled = true },
         disable = {
@@ -87,25 +135,14 @@ return {
             "ruff",
             "eslint",
             "efm",
+            "sqls",
+            "tailwindcss",
           },
         },
         filetypes = {},
         log = { enabled = false },
       },
     },
-    -- {
-    --   "VidocqH/lsp-lens.nvim",
-    --   event = "LspAttach",
-    --   version = "*",
-    --   opts = {
-    --     sections = { -- Enable / Disable specific request, formatter example looks 'Format Requests'
-    --       definition = true,
-    --       references = true,
-    --       implements = true,
-    --       git_authors = false,
-    --     },
-    --   },
-    -- },
     {
       "creativenull/efmls-configs-nvim",
       version = "v1.x.x", -- version is optional, but recommended
@@ -151,15 +188,17 @@ return {
           show_source = true,
           use_icons_from_diagnostic = true,
           add_messages = true,
-          throttle = 0,
-          multiple_diag_under_cursor = true,
+          -- multiple_diag_under_cursor = true,
           multilines = {
             enabled = true,
             always_show = true,
           },
           show_all_diags_on_cursorline = true,
-          enable_on_insert = true,
-          overwrite_events = { "DiagnosticChanged" }, -- to support files where we have a linter but no lsp
+          -- throttle = 0,
+          -- enable_on_insert = true,
+          throttle = 20,
+          enable_on_insert = false,
+          -- overwrite_events = { "DiagnosticChanged" }, -- to support files where we have a linter but no lsp
         },
       },
     },
@@ -167,11 +206,9 @@ return {
   config = function()
     require("neodev").setup()
     local efmLanguages = {
-      proto = {
-        require("efmls-configs.linters.buf"),
-      },
       json = {
         require("efmls-configs.linters.jq"),
+        require("efmls-configs.formatters.jq"),
       },
       gitcommit = {
         require("efmls-configs.linters.gitlint"),
@@ -185,6 +222,9 @@ return {
       protols = {},
       buf_ls = {},
       eslint = {},
+      sqls = {
+        cmd = { "sqls", "-config", "~/.config/sqls/config.yaml" },
+      },
       lua_ls = {
         settings = {
           Lua = {
@@ -223,8 +263,7 @@ return {
             "--tests",
             "--build-tags",
             "integration,unit",
-            "--concurrency",
-            "16",
+            "--allow-parallel-runners",
             "--max-issues-per-linter",
             "0",
             "--max-same-issues",
@@ -241,7 +280,6 @@ return {
           gopls = {
             analyses = {
               ST1003 = true,
-              fieldalignment = true,
               fillreturns = true,
               nilness = true,
               nonewvars = true,
@@ -406,7 +444,7 @@ return {
         -- vim.lsp.protocol.make_client_capabilities(),
         {
           workspace = {
-            didChangeWatchedFiles = { dynamicRegistration = false },
+            didChangeWatchedFiles = { dynamicRegistration = true },
           },
         }
       )

@@ -6,10 +6,14 @@ return {
     events = { "BufWritePost", "BufReadPost", "InsertLeave" },
     ---@type table<string,table>
     linters_by_ft = {
+      dotenv = { "dotenv_linter" },
       lua = { "luacheck", "selene" },
       sql = { "sqlfluff" },
       -- go = { "golangcilint" },
-      nix = { "nix" },
+      nix = { "nix", "statix" },
+      python = { "dmypy" },
+      proto = { "buff_lint", "protolint" },
+      sh = { "shellcheck" },
     },
     ---@type table<string,table>
     linters = {
@@ -27,9 +31,6 @@ return {
           "0",
           "--out-format",
           "json",
-          "--show-stats=false",
-          "--print-issued-lines=false",
-          "--print-linter-name=false",
           function()
             return vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":h")
           end,
