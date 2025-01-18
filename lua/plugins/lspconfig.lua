@@ -1,3 +1,5 @@
+local SymbolKind = vim.lsp.protocol.SymbolKind
+
 local on_attach = function(client, bufnr)
   local map = function(mode, keys, func, desc)
     if desc then
@@ -126,6 +128,15 @@ return {
       version = "*",
       ---@type UserOpts
       opts = {
+        kinds = {
+          SymbolKind.Function,
+          SymbolKind.Method,
+          SymbolKind.Constant,
+          SymbolKind.Interface,
+          SymbolKind.Enum,
+          SymbolKind.Class,
+          SymbolKind.Struct,
+        },
         references = { enabled = true },
         definition = { enabled = true },
         implementation = { enabled = true },
@@ -188,7 +199,7 @@ return {
           show_source = true,
           use_icons_from_diagnostic = true,
           add_messages = true,
-          -- multiple_diag_under_cursor = true,
+          multiple_diag_under_cursor = true,
           multilines = {
             enabled = true,
             always_show = true,
