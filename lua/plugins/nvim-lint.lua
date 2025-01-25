@@ -41,9 +41,9 @@ return {
           "lint",
           "--format=json",
         },
-        condition = function(ctx)
-          return vim.fs.find({ ".sqlfluff" }, { path = ctx.filename, upward = true })[1]
-        end,
+        -- condition = function(ctx)
+        --   return vim.fs.find({ ".sqlfluff" }, { path = ctx.filename, upward = true })[1]
+        -- end,
       },
       selene = {
         condition = function(ctx)

@@ -1,3 +1,5 @@
+local SymbolKind = vim.lsp.protocol.SymbolKind
+
 local on_attach = function(client, bufnr)
   local map = function(mode, keys, func, desc)
     if desc then
@@ -115,6 +117,40 @@ local on_init = function(client, _)
   end
 end
 
+local golanci_lint_args = function()
+  local defaults = {
+    "golangci-lint",
+    "run",
+    "--tests",
+    "--build-tags",
+    "integration,unit",
+    "--allow-parallel-runners",
+    "--max-issues-per-linter",
+    "0",
+    "--max-same-issues",
+    "0",
+    "--out-format",
+    "json",
+  }
+
+  local config = vim.fs.find(
+    { ".golangci.yml" },
+    { path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":p:h"), upward = true }
+  )
+  if #config == 0 then
+    return defaults
+  end
+
+  local config_path = vim.fn.fnamemodify(config[1], ":p")
+
+  if config_path ~= nil then
+    table.insert(defaults, "--config")
+    table.insert(defaults, config_path)
+  end
+
+  return defaults
+end
+
 return {
   "neovim/nvim-lspconfig",
   event = { "BufWritePre", "BufReadPre" },
@@ -126,6 +162,15 @@ return {
       version = "*",
       ---@type UserOpts
       opts = {
+        kinds = {
+          SymbolKind.Function,
+          SymbolKind.Method,
+          SymbolKind.Constant,
+          SymbolKind.Interface,
+          SymbolKind.Enum,
+          SymbolKind.Class,
+          SymbolKind.Struct,
+        },
         references = { enabled = true },
         definition = { enabled = true },
         implementation = { enabled = true },
@@ -188,7 +233,7 @@ return {
           show_source = true,
           use_icons_from_diagnostic = true,
           add_messages = true,
-          -- multiple_diag_under_cursor = true,
+          multiple_diag_under_cursor = true,
           multilines = {
             enabled = true,
             always_show = true,
@@ -198,7 +243,7 @@ return {
           -- enable_on_insert = true,
           throttle = 20,
           enable_on_insert = false,
-          -- overwrite_events = { "DiagnosticChanged" }, -- to support files where we have a linter but no lsp
+          overwrite_event = { "DiagnosticChanged" }, -- to support files where we have a linter but no lsp
         },
       },
     },
@@ -257,20 +302,7 @@ return {
       },
       golangci_lint_ls = {
         init_options = {
-          command = {
-            "golangci-lint",
-            "run",
-            "--tests",
-            "--build-tags",
-            "integration,unit",
-            "--allow-parallel-runners",
-            "--max-issues-per-linter",
-            "0",
-            "--max-same-issues",
-            "0",
-            "--out-format",
-            "json",
-          },
+          command = golanci_lint_args(),
         },
       },
       gopls = {

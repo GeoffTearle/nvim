@@ -24,7 +24,7 @@ return {
     -- Set up format-on-save
     -- format_on_save = {
     --   -- I recommend these options. See :help conform.format for details.
-    --   lsp_format = "fallback",
+    --   lsp_format = "never",
     --   timeout_ms = 500,
     -- },
     -- If this is set, Conform will run the formatter asynchronously after save.
@@ -46,6 +46,7 @@ return {
           -- When cwd is not found, don't run the formatter (default false)
           require_cwd = false,
           append_args = {
+            "--skip-generated",
             "-s",
             "standard",
             "-s",
@@ -67,7 +68,6 @@ return {
             "setup.cfg",
             "tox.ini",
           }),
-          require_cwd = true,
         }
       end,
       sqlfluff_fix = function()
@@ -83,7 +83,6 @@ return {
             "setup.cfg",
             "tox.ini",
           }),
-          require_cwd = true,
         }
       end,
     },

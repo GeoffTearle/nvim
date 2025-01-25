@@ -22,119 +22,126 @@ return {
       function()
         require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
       end,
-      desc = "Breakpoint Condition",
+      desc = "Debug: Breakpoint Condition",
     },
     {
       "<leader>db",
       function()
         require("dap").toggle_breakpoint()
       end,
-      desc = "Toggle Breakpoint",
+      desc = "Debug: Toggle Breakpoint",
     },
     {
       "<leader>dc",
       function()
         require("dap").continue()
       end,
-      desc = "Run/Continue",
+      desc = "Debug: Run/Continue",
     },
     {
       "<leader>dC",
       function()
         require("dap").run_to_cursor()
       end,
-      desc = "Run to Cursor",
+      desc = "Debug: Run to Cursor",
     },
     {
       "<leader>dg",
       function()
         require("dap").goto_()
       end,
-      desc = "Go to Line (No Execute)",
+      desc = "Debug: Go to Line (No Execute)",
     },
     {
       "<leader>di",
       function()
         require("dap").step_into()
       end,
-      desc = "Step Into",
+      desc = "Debug: Step Into",
     },
     {
       "<leader>dj",
       function()
         require("dap").down()
       end,
-      desc = "Down",
+      desc = "Debug: Down",
     },
     {
       "<leader>dk",
       function()
         require("dap").up()
       end,
-      desc = "Up",
+      desc = "Debug: Up",
     },
     {
       "<leader>dl",
       function()
         require("dap").run_last()
       end,
-      desc = "Run Last",
+      desc = "Debug: Run Last",
     },
     {
       "<leader>do",
       function()
         require("dap").step_out()
       end,
-      desc = "Step Out",
+      desc = "Debug: Step Out",
     },
     {
       "<leader>dO",
       function()
         require("dap").step_over()
       end,
-      desc = "Step Over",
+      desc = "Debug: Step Over",
     },
     {
       "<leader>dP",
       function()
         require("dap").pause()
       end,
-      desc = "Pause",
+      desc = "Debug: Pause",
     },
     {
       "<leader>dr",
       function()
         require("dap").repl.toggle()
       end,
-      desc = "Toggle REPL",
+      desc = "Debug: Toggle REPL",
     },
     {
       "<leader>ds",
       function()
         require("dap").session()
       end,
-      desc = "Session",
+      desc = "Debug: Session",
     },
     {
       "<leader>dt",
       function()
         require("dap").terminate()
       end,
-      desc = "Terminate",
+      desc = "Debug: Terminate",
     },
     {
       "<leader>dh",
       function()
         require("dap.ui.widgets").hover()
       end,
-      desc = "Hover",
+      desc = "Debug: Hover",
     },
     {
       "<leader>dp",
       function()
         require("dap.ui.widgets").preview()
       end,
-      desc = "Preview",
+      desc = "Debug: Preview",
+    },
+    {
+      "<F7>",
+      function()
+        require("dapui").toggle()
+      end,
+      { desc = "Debug: Toggle UI" },
     },
   },
 
@@ -164,7 +171,6 @@ return {
         },
       },
     })
-
     dap.listeners.after.event_initialized["dapui_config"] = dapui.open
     -- dap.listeners.before.event_terminated["dapui_config"] = dapui.close
     -- dap.listeners.before.event_exited["dapui_config"] = dapui.close
@@ -174,40 +180,6 @@ return {
     vscode.json_decode = function(str)
       return vim.json.decode(json.json_strip_comments(str))
     end
-    -- Install golang specific config
-    -- require("dap-go").setup({
-    --   dap_configurations = {
-    --     {
-    --       type = "go",
-    --       name = "Attach remote",
-    --       request = "attach",
-    --       mode = "remote",
-    --       port = "4040",
-    --       connect = {
-    --         host = "127.0.0.1",
-    --         port = "4040",
-    --       },
-    --       substitutePath = {
-    --         {
-    --           from = "${workspaceFolder}/api",
-    --           to = "/go/src/api",
-    --         },
-    --         {
-    --           from = "${workspaceFolder}/pkg",
-    --           to = "/go/src/pkg",
-    --         },
-    --       },
-    --     },
-    --   },
-    --   delve = {
-    --     path = vim.fn.exepath("dlv"),
-    --     -- initialize_timeout_sec = 20,
-    --     port = "4040",
-    --     build_flags = {
-    --       "-tags=integration,unit",
-    --     },
-    --   },
-    -- })
     require("dap-go").setup({
       delve = {
         build_flags = {
