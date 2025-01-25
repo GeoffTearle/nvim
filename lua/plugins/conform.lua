@@ -22,18 +22,18 @@ return {
       sql = { "sqlfluff_format", "sqlfluff_fix" },
     },
     -- Set up format-on-save
-    format_on_save = {
-      -- I recommend these options. See :help conform.format for details.
-      lsp_format = "never",
-      timeout_ms = 500,
-    },
+    -- format_on_save = {
+    --   -- I recommend these options. See :help conform.format for details.
+    --   lsp_format = "never",
+    --   timeout_ms = 500,
+    -- },
     -- If this is set, Conform will run the formatter asynchronously after save.
     -- It will pass the table to conform.format().
     -- This can also be a function that returns the table.
-    -- format_after_save = {
-    --   async = true,
-    --   lsp_format = "never",
-    -- },
+    format_after_save = {
+      async = true,
+      lsp_format = "never",
+    },
     -- Customize formatters
     formatters = {
       golines = {
@@ -68,7 +68,6 @@ return {
             "setup.cfg",
             "tox.ini",
           }),
-          require_cwd = true,
         }
       end,
       sqlfluff_fix = function()
@@ -84,7 +83,6 @@ return {
             "setup.cfg",
             "tox.ini",
           }),
-          require_cwd = true,
         }
       end,
     },
