@@ -48,7 +48,7 @@ if completion_plugin == "magazine.nvim" then
 
       require("luasnip.loaders.from_vscode").lazy_load()
       luasnip.config.setup({})
-
+      local strlib = require("string")
       cmp.setup({
         snippet = {
           expand = function(args)
@@ -101,7 +101,7 @@ if completion_plugin == "magazine.nvim" then
         sources = {
           { name = "nvim_lsp", group_index = 1, keyword_length = 1 },
           { name = "nvim_lsp_signature_help" },
-          { name = "luasnip", group_index = 1, priority = -1, keyword_length = 1 },
+          { name = "luasnip", group_index = 1, keyword_length = 1 }, -- priority = -1
           { name = "nvim_lua", group_index = 1, keyword_length = 1 },
           { name = "cmp-dbee", group_index = 1, keyword_length = 1 },
           { name = "buffer", group_index = 1, keyword_length = 1 },
@@ -121,6 +121,21 @@ if completion_plugin == "magazine.nvim" then
             compare.length,
             compare.order,
           },
+        },
+        formatting = {
+          format = function(entry, vim_item)
+            -- Source
+            vim_item.menu = ({
+              buffer = "[Buffer]",
+              nvim_lsp = "[LSP]",
+              luasnip = "[LuaSnip]",
+              nvim_lua = "[Lua]",
+              latex_symbols = "[LaTeX]",
+              nvim_lsp_signature_help = "[LSP Sig]",
+              cmp_dbee = "[DBee]",
+            })[strlib.gsub(entry.source.name, "-", "_")]
+            return vim_item
+          end,
         },
       })
 

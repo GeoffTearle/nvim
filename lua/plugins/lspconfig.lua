@@ -53,7 +53,7 @@ end
 
 ---@param client vim.lsp.Client
 local on_init = function(client, _)
-  client.server_capabilities.documentFormattingProvider = nil
+  client.server_capabilities.documentFormattingProvider = false
 
   if client.name == "gopls" then
     if not client.server_capabilities.semanticTokensProvider then
@@ -72,16 +72,16 @@ local on_init = function(client, _)
   end
 
   if client.name == "sqls" then
-    client.server_capabilities.documentFormattingProvider = nil
+    client.server_capabilities.documentFormattingProvider = false
   end
 
   if client.name == "golangci_lint_ls" then
-    client.server_capabilities.documentFormattingProvider = nil
+    client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.signatureHelpProvider = nil
-    client.server_capabilities.declarationProvider = nil
-    client.server_capabilities.definitionProvider = nil
-    client.server_capabilities.implementationProvider = nil
-    client.server_capabilities.referencesProvider = nil
+    client.server_capabilities.declarationProvider = false
+    client.server_capabilities.definitionProvider = false
+    client.server_capabilities.implementationProvider = false
+    client.server_capabilities.referencesProvider = false
     client.server_capabilities.codeLensProvider = nil
     client.server_capabilities.documentLinkProvider = nil
   end
@@ -107,11 +107,11 @@ local on_init = function(client, _)
     --   }
     -- }
     client.server_capabilities.signatureHelpProvider = nil
-    client.server_capabilities.declarationProvider = nil
-    client.server_capabilities.definitionProvider = nil
-    client.server_capabilities.implementationProvider = nil
+    client.server_capabilities.declarationProvider = false
+    client.server_capabilities.definitionProvider = false
+    client.server_capabilities.implementationProvider = false
     client.server_capabilities.diagnosticProvider = nil
-    client.server_capabilities.referencesProvider = nil
+    client.server_capabilities.referencesProvider = false
     client.server_capabilities.codeLensProvider = nil
     client.server_capabilities.documentLinkProvider = nil
   end
@@ -263,12 +263,16 @@ return {
       },
     }
 
+    ---@type table<string,lspconfig.Config>
     local servers = {
       protols = {},
       buf_ls = {},
       eslint = {},
       sqls = {
         cmd = { "sqls", "-config", "~/.config/sqls/config.yaml" },
+        root_dir = function(fname, _)
+          return require("lspconfig.util").root_pattern(".git")(fname)
+        end,
       },
       lua_ls = {
         settings = {
