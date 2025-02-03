@@ -142,8 +142,8 @@ local golanci_lint_args = function()
   end
 
   local config_path = vim.fn.fnamemodify(config[1], ":p")
-
   if config_path ~= nil then
+    vim.notify(config_path)
     table.insert(defaults, "--config")
     table.insert(defaults, config_path)
   end
@@ -305,6 +305,12 @@ return {
         },
       },
       golangci_lint_ls = {
+        cmd = (function(debug)
+          if debug then
+            return { "golangci-lint-langserver", "-debug" }
+          end
+          return { "golangci-lint-langserver" }
+        end)(false),
         init_options = {
           command = golanci_lint_args(),
         },
@@ -468,6 +474,7 @@ return {
           },
         },
       },
+      bashls = {},
     }
 
     local client_capabilities = function()
