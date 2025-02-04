@@ -117,7 +117,7 @@ local on_init = function(client, _)
   end
 end
 
-local golanci_lint_args = function()
+local golangci_lint_args = function()
   local defaults = {
     "golangci-lint",
     "run",
@@ -312,7 +312,7 @@ return {
           return { "golangci-lint-langserver" }
         end)(false),
         init_options = {
-          command = golanci_lint_args(),
+          command = golangci_lint_args(),
         },
       },
       gopls = {
