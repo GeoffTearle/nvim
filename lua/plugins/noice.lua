@@ -22,12 +22,12 @@ return {
         view = "hover",
         ---@type NoiceViewOptions
         opts = {
-          lang = "markdown",
-          replace = true,
-          render = "plain",
-          format = { "{message}" },
-          win_options = { concealcursor = "nvic", conceallevel = 3, wrap = false },
-          size = { row = 9999, col = 9999 },
+          -- lang = "markdown",
+          -- replace = true,
+          -- render = "plain",
+          -- format = { "{message}" },
+          win_options = { concealcursor = "nvic", conceallevel = 0, wrap = true },
+          -- size = { row = 9999, col = 9999 },
         },
       },
     },

@@ -12,19 +12,19 @@ return {
           anti_conceal = {
             enabled = false,
           },
+          code = {
+            -- Turn on / off code block & inline code rendering
+            enabled = true,
+          },
           win_options = {
             -- See :h 'conceallevel'
             conceallevel = {
-              -- Used when not being rendered, get user setting
-              default = 3,
-              -- Used when being rendered, concealed text is completely hidden
-              rendered = 3,
+              default = 0,
+              rendered = 0,
             },
             -- See :h 'concealcursor'
             concealcursor = {
-              -- Used when not being rendered, get user setting
               default = "nvic",
-              -- Used when being rendered, disable concealing text in all modes
               rendered = "nvic",
             },
           },
@@ -34,17 +34,13 @@ return {
           win_options = {
             -- See :h 'conceallevel'
             conceallevel = {
-              -- Used when not being rendered, get user setting
-              default = 3,
-              -- Used when being rendered, concealed text is completely hidden
-              rendered = 3,
+              default = 0,
+              rendered = 0,
             },
             -- See :h 'concealcursor'
             concealcursor = {
-              -- Used when not being rendered, get user setting
-              default = "nvc",
-              -- Used when being rendered, disable concealing text in all modes
-              rendered = "nvc",
+              default = "nvic",
+              rendered = "nvic",
             },
           },
         },
