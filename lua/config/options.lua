@@ -72,7 +72,7 @@ function optionsManager.apply()
   opt.virtualedit = "block" -- Allow cursor to move where there is no text in visual block mode
   opt.wildmode = "longest:full,full" -- Command-line completion mode
   opt.winminwidth = 5 -- Minimum window width
-  opt.wrap = true -- Enable line wrap
+  opt.wrap = false -- disable line wrap
 
   vim.wo.signcolumn = "yes" -- Keep signcolumn on by default
 

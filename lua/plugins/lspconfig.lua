@@ -49,11 +49,14 @@ local on_attach = function(client, bufnr)
   if client.name == "sqls" then
     require("sqls").on_attach(client, bufnr)
   end
+  if client.server_capabilities.documentSymbolProvider then
+    require("nvim-navic").attach(client, bufnr)
+  end
 end
 
 ---@param client vim.lsp.Client
 local on_init = function(client, _)
-  client.server_capabilities.documentFormattingProvider = nil
+  client.server_capabilities.documentFormattingProvider = false
 
   if client.name == "gopls" then
     if not client.server_capabilities.semanticTokensProvider then
@@ -72,16 +75,16 @@ local on_init = function(client, _)
   end
 
   if client.name == "sqls" then
-    client.server_capabilities.documentFormattingProvider = nil
+    client.server_capabilities.documentFormattingProvider = false
   end
 
   if client.name == "golangci_lint_ls" then
-    client.server_capabilities.documentFormattingProvider = nil
+    client.server_capabilities.documentFormattingProvider = false
     client.server_capabilities.signatureHelpProvider = nil
-    client.server_capabilities.declarationProvider = nil
-    client.server_capabilities.definitionProvider = nil
-    client.server_capabilities.implementationProvider = nil
-    client.server_capabilities.referencesProvider = nil
+    client.server_capabilities.declarationProvider = false
+    client.server_capabilities.definitionProvider = false
+    client.server_capabilities.implementationProvider = false
+    client.server_capabilities.referencesProvider = false
     client.server_capabilities.codeLensProvider = nil
     client.server_capabilities.documentLinkProvider = nil
   end
@@ -107,17 +110,17 @@ local on_init = function(client, _)
     --   }
     -- }
     client.server_capabilities.signatureHelpProvider = nil
-    client.server_capabilities.declarationProvider = nil
-    client.server_capabilities.definitionProvider = nil
-    client.server_capabilities.implementationProvider = nil
+    client.server_capabilities.declarationProvider = false
+    client.server_capabilities.definitionProvider = false
+    client.server_capabilities.implementationProvider = false
     client.server_capabilities.diagnosticProvider = nil
-    client.server_capabilities.referencesProvider = nil
+    client.server_capabilities.referencesProvider = false
     client.server_capabilities.codeLensProvider = nil
     client.server_capabilities.documentLinkProvider = nil
   end
 end
 
-local golanci_lint_args = function()
+local golangci_lint_args = function()
   local defaults = {
     "golangci-lint",
     "run",
@@ -142,8 +145,8 @@ local golanci_lint_args = function()
   end
 
   local config_path = vim.fn.fnamemodify(config[1], ":p")
-
   if config_path ~= nil then
+    vim.notify(config_path)
     table.insert(defaults, "--config")
     table.insert(defaults, config_path)
   end
@@ -263,12 +266,16 @@ return {
       },
     }
 
+    ---@type table<string,lspconfig.Config>
     local servers = {
       protols = {},
       buf_ls = {},
       eslint = {},
       sqls = {
         cmd = { "sqls", "-config", "~/.config/sqls/config.yaml" },
+        root_dir = function(fname, _)
+          return require("lspconfig.util").root_pattern(".git")(fname)
+        end,
       },
       lua_ls = {
         settings = {
@@ -301,8 +308,14 @@ return {
         },
       },
       golangci_lint_ls = {
+        cmd = (function(debug)
+          if debug then
+            return { "golangci-lint-langserver", "-debug" }
+          end
+          return { "golangci-lint-langserver" }
+        end)(false),
         init_options = {
-          command = golanci_lint_args(),
+          command = golangci_lint_args(),
         },
       },
       gopls = {
@@ -464,6 +477,7 @@ return {
           },
         },
       },
+      bashls = {},
     }
 
     local client_capabilities = function()

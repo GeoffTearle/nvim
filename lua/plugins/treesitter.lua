@@ -37,6 +37,7 @@ return {
           [".*/git/.*%.config"] = "gitconfig",
         },
       })
+      vim.treesitter.language.register("markdown", "noice")
     end,
   },
   {

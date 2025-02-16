@@ -52,6 +52,8 @@ return {
             "-s",
             "default",
             "-s",
+            "prefix(github.com/premiumlabs/monorepo)",
+            "-s",
             "localmodule",
           },
         }
