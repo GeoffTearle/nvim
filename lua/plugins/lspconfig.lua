@@ -185,6 +185,7 @@ return {
             "efm",
             "sqls",
             "tailwindcss",
+            "nixd",
           },
         },
         filetypes = {},
