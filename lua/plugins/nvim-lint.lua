@@ -6,14 +6,17 @@ return {
     events = { "BufWritePost", "BufReadPost", "InsertLeave" },
     ---@type table<string,table>
     linters_by_ft = {
-      dotenv = { "dotenv_linter" },
-      lua = { "luacheck", "selene" },
-      sql = { "sqlfluff" },
       -- go = { "golangcilint" },
+      dotenv = { "dotenv_linter" },
+      javascript = { "eslint_d" },
+      lua = { "luacheck", "selene" },
       nix = { "nix", "statix" },
-      python = { "dmypy" },
       proto = { "buff_lint", "protolint" },
+      python = { "dmypy" },
       sh = { "shellcheck" },
+      sql = { "sqlfluff" },
+      typescript = { "eslint_d" },
+      typescriptreact = { "eslint_d" },
     },
     ---@type table<string,table>
     linters = {

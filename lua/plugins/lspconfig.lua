@@ -56,7 +56,9 @@ end
 
 ---@param client vim.lsp.Client
 local on_init = function(client, _)
-  client.server_capabilities.documentFormattingProvider = false
+  if client.name == "buf_ls" or client.name == "protols" then
+    client.server_capabilities.semanticTokensProvider = nil
+  end
 
   if client.name == "gopls" then
     if not client.server_capabilities.semanticTokensProvider then
@@ -89,6 +91,10 @@ local on_init = function(client, _)
     client.server_capabilities.documentLinkProvider = nil
   end
 
+  if client.name == "eslint" then
+    client.server_capabilities.hoverProvider = false
+  end
+
   if client.name == "tailwindcss" then
     --   {
     --   codeActionProvider = true,
@@ -117,6 +123,7 @@ local on_init = function(client, _)
     client.server_capabilities.referencesProvider = false
     client.server_capabilities.codeLensProvider = nil
     client.server_capabilities.documentLinkProvider = nil
+    -- client.server_capabilities.hoverProvider = false
   end
 end
 
@@ -187,6 +194,9 @@ return {
             "tailwindcss",
             "nixd",
           },
+          filetypes = {
+            "proto",
+          },
         },
         filetypes = {},
         log = { enabled = false },
@@ -200,18 +210,42 @@ return {
     {
       "pmizio/typescript-tools.nvim",
       dependencies = { "nvim-lua/plenary.nvim" },
+      ft = {
+        "typescript",
+        "typescriptreact",
+        "javascript",
+        "javascriptreact",
+      },
       opts = {
         on_attach = on_attach,
+        expose_as_code_action = "all",
+        complete_function_calls = true,
+        jsx_close_tag = {
+          enable = true,
+          filetypes = { "javascriptreact", "typescriptreact" },
+        },
         settings = {
+          separate_diagnostic_server = true,
           tsserver_file_preferences = {
             includeCompletionsForModuleExports = true,
+            includeCompletionsForImportStatements = true,
+            includeCompletionsWithSnippetText = true,
+            includeCompletionsWithInsertText = true,
+            includeAutomaticOptionalChainCompletions = true,
+            includeCompletionsWithClassMemberSnippets = true,
+            includeCompletionsWithObjectLiteralMethodSnippets = true,
+
+            allowIncompleteCompletions = true,
+
+            useLabelDetailsInCompletionEntries = true,
+
             includeInlayParameterNameHints = "all",
             includeInlayParameterNameHintsWhenArgumentMatchesName = false,
             includeInlayFunctionParameterTypeHints = true,
             includeInlayVariableTypeHints = true,
             includeInlayVariableTypeHintsWhenTypeMatchesName = false,
             includeInlayPropertyDeclarationTypeHints = true,
-            includeInlayFunctionLikeReturnTypeHints = true,
+            includeInlayFunctionLikeReturnTypeHints = false,
             includeInlayEnumMemberValueHints = true,
           },
         },
@@ -269,9 +303,57 @@ return {
 
     ---@type table<string,lspconfig.Config>
     local servers = {
+      -- vtsls = {
+      --   filetypes = {
+      --     "javascript",
+      --     "javascriptreact",
+      --     "javascript.jsx",
+      --     "typescript",
+      --     "typescriptreact",
+      --     "typescript.tsx",
+      --   },
+      --   settings = {
+      --     complete_function_calls = true,
+      --     vtsls = {
+      --       enableMoveToFileCodeAction = true,
+      --       autoUseWorkspaceTsdk = true,
+      --       experimental = {
+      --         maxInlayHintLength = 60,
+      --         completion = {
+      --           enableServerSideFuzzyMatch = true,
+      --         },
+      --       },
+      --     },
+      --     typescript = {
+      --       preferences = {
+      --         useAliasesForRenames = false,
+      --         renameShorthandProperties = false,
+      --         includePackageJsonAutoImports = "on",
+      --       },
+      --       updateImportsOnFileMove = { enabled = "always" },
+      --       suggest = {
+      --         completeFunctionCalls = true,
+      --       },
+      --       inlayHints = {
+      --         enumMemberValues = { enabled = true },
+      --         functionLikeReturnTypes = { enabled = true },
+      --         parameterNames = { enabled = "literals" },
+      --         parameterTypes = { enabled = true },
+      --         propertyDeclarationTypes = { enabled = true },
+      --         variableTypes = { enabled = false },
+      --       },
+      --       tsserver = {
+      --         useSyntaxServer = "never",
+      --         experimental = {
+      --           enableProjectDiagnostics = true,
+      --         },
+      --       },
+      --     },
+      --   },
+      -- },
       protols = {},
       buf_ls = {},
-      eslint = {},
+      -- eslint = {},
       sqls = {
         cmd = { "sqls", "-config", "~/.config/sqls/config.yaml" },
         root_dir = function(fname, _)
@@ -290,24 +372,24 @@ return {
           },
         },
       },
-      nixd = {
-        cmd = { "nixd", "--semantic-tokens=true", "--inlay-hints=true" },
-        settings = {
-          nixd = {
-            nixpkgs = {
-              expr = "import <nixpkgs> { }",
-            },
-            options = {
-              nixos = {
-                expr = '(builtins.getFlake ("git+file://" + toString ./.)).nixosConfigurations.k-on.options',
-              },
-              home_manager = {
-                expr = '(builtins.getFlake ("git+file://" + toString ./.)).homeConfigurations."ruixi@k-on".options',
-              },
-            },
-          },
-        },
-      },
+      -- nixd = {
+      --   cmd = { "nixd", "--semantic-tokens=true", "--inlay-hints=true" },
+      --   settings = {
+      --     nixd = {
+      --       nixpkgs = {
+      --         expr = "import <nixpkgs> { }",
+      --       },
+      --       options = {
+      --         nixos = {
+      --           expr = '(builtins.getFlake ("git+file://" + toString ./.)).nixosConfigurations.k-on.options',
+      --         },
+      --         home_manager = {
+      --           expr = '(builtins.getFlake ("git+file://" + toString ./.)).homeConfigurations."ruixi@k-on".options',
+      --         },
+      --       },
+      --     },
+      --   },
+      -- },
       golangci_lint_ls = {
         cmd = (function(debug)
           if debug then
@@ -332,16 +414,17 @@ return {
               shadow = true,
               undeclaredname = true,
               unreachable = true,
+              unusedfunc = true,
               unusedparams = true,
               unusedvariable = true,
               unusedwrite = true,
               useany = true,
             },
             codelenses = {
-              gc_details = true,
               generate = true,
               regenerate_cgo = true,
               run_govulncheck = true,
+              vulncheck = true,
               test = true,
               tidy = true,
               upgrade_dependency = true,
@@ -351,6 +434,7 @@ return {
             diagnosticsDelay = "500ms",
             directoryFilters = { "-.git", "-node_modules" },
             experimentalPostfixCompletions = true,
+            vulncheck = true,
             gofumpt = true,
             matcher = "Fuzzy",
             semanticTokens = true,
